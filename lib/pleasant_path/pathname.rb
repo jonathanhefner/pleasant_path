@@ -22,4 +22,9 @@ class Pathname
     self.dirname / sibling
   end
 
+  # Alias of +Pathname#directory?+.
+  #
+  # @return [Boolean]
+  alias :dir? :directory?
+
 end
