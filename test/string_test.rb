@@ -30,4 +30,12 @@ class StringTest < Minitest::Test
     assert_equal 'path/to/file2', result.to_s
   end
 
+  def test_glob
+    project_dir = File.dirname(File.dirname(__FILE__))
+    gemspec = project_dir + '/pleasant_path.gemspec'
+    pattern = project_dir + '/*.gemspec'
+
+    assert_equal [Pathname.new(gemspec)], pattern.glob
+  end
+
 end

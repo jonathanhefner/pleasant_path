@@ -39,4 +39,13 @@ class String
     self.path ^ sibling
   end
 
+  # Treats the string as a filename pattern, and expands the pattern
+  # into matching paths as +Pathname+ objects.  See also +Dir.glob+ and
+  # +Pathname.glob+.
+  #
+  # @return [Array<Pathname>]
+  def glob
+    Pathname.glob(self)
+  end
+
 end
