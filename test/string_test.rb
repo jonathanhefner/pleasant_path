@@ -23,4 +23,11 @@ class StringTest < Minitest::Test
     assert_equal 'path/to/subdir/file', result.to_s
   end
 
+  def test_op_caret
+    result = 'path/to/file1' ^ 'file2'
+
+    assert_instance_of Pathname, result
+    assert_equal 'path/to/file2', result.to_s
+  end
+
 end

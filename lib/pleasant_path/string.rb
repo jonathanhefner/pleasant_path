@@ -24,4 +24,19 @@ class String
     self.path / child
   end
 
+  # Treating the string as a path, joins the parent (+dirname+) of the
+  # path with the argument, and returns the result as a +Pathname+
+  # object.  The mnenomic for this operator is that the resultant path
+  # goes up one directory level from the original, then goes down to the
+  # directory specified by the argument.  See also +Pathname#^+.
+  #
+  # @example
+  #   ("path/to/file1" ^ "file2").to_s #=> "path/to/file2"
+  #
+  # @param sibling [Pathname, String]
+  # @return [Pathname]
+  def ^(sibling)
+    self.path ^ sibling
+  end
+
 end
