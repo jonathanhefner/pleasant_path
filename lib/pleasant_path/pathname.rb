@@ -27,4 +27,12 @@ class Pathname
   # @return [Boolean]
   alias :dir? :directory?
 
+  # Alias of +Pathname#mkpath+, but this method returns the Pathname.
+  #
+  # @return [Pathname]
+  def make_dir
+    self.mkpath
+    self
+  end
+
 end
