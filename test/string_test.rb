@@ -16,4 +16,11 @@ class StringTest < Minitest::Test
     assert_equal s.to_pathname, s.path
   end
 
+  def test_op_slash
+    result = 'path/to' / 'subdir/file'
+
+    assert_instance_of Pathname, result
+    assert_equal 'path/to/subdir/file', result.to_s
+  end
+
 end
