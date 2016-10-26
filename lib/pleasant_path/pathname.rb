@@ -100,4 +100,15 @@ class Pathname
     self
   end
 
+  # Appends given text to the file indicated by the Pathname, and
+  # returns the Pathname.  The file is created if it does not exist.
+  # Any necessary parent directories are created if they do not exist.
+  #
+  # @param text [String]
+  # @return [Pathname]
+  def append_text(text)
+    self.make_dirname.open('a'){|f| f.write(text) }
+    self
+  end
+
 end
