@@ -56,4 +56,14 @@ class Pathname
     self
   end
 
+  # Recursively deletes the directory or file indicated by the Pathname,
+  # and returns the Pathname.  Similar to +Pathname#rmtree+, but does
+  # not raise an exception if the file does not exist.
+  #
+  # @return [Pathname]
+  def delete!
+    self.rmtree if self.exist?
+    self
+  end
+
 end

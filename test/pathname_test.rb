@@ -48,4 +48,21 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_delete!
+    Dir.mktmpdir do |tmp|
+      path = Pathname.new(tmp) / 'path/to/dir'
+
+      assert_equal path, path.delete! # doesn't exist, but nothing raised
+
+      path.mkpath
+      path.delete!
+      refute path.exist?
+      assert path.dirname.exist?
+
+      path.mkpath
+      path.dirname.delete!
+      refute path.dirname.exist?
+    end
+  end
+
 end
