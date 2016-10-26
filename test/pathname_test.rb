@@ -78,4 +78,17 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_move_into
+    Dir.mktmpdir do |tmp|
+      src = Pathname.new(tmp) / 'src/path/x'
+      src.mkpath
+      dest = Pathname.new(tmp) / 'dest/path/x'
+
+      refute dest.exist?
+      assert_equal dest, src.move_into(dest.dirname)
+      assert dest.exist?
+      refute src.exist?
+    end
+  end
+
 end

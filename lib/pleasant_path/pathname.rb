@@ -79,4 +79,14 @@ class Pathname
     destination
   end
 
+  # Moves the file indicated by Pathname into the given directory, and
+  # returns the resultant path to the file as a Pathname.  Creates any
+  # necessary parent directories if they do not exist.
+  #
+  # @param directory [Pathname, String]
+  # @return [Pathname]
+  def move_into(directory)
+    self.move(directory / self.basename)
+  end
+
 end
