@@ -35,4 +35,13 @@ class Pathname
     self
   end
 
+  # Creates the parent (+dirname+) directories of the Pathname if they
+  # do not exist, and returns the Pathname.
+  #
+  # @return [Pathname]
+  def make_dirname
+    self.dirname.make_dir
+    self
+  end
+
 end
