@@ -124,4 +124,16 @@ class Pathname
     self
   end
 
+  # Appends given lines of text to the file indicated by the Pathname,
+  # and returns the Pathname.  A new line character (<code>$/</code>) is
+  # written after each line.  The file is created if it does not exist.
+  # Any necessary parent directories are created if they do not exist.
+  #
+  # @param lines [Array<String>]
+  # @return [Pathname]
+  def append_lines(lines)
+    self.make_dirname.open('a'){|f| f.write_lines(lines) }
+    self
+  end
+
 end
