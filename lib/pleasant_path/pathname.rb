@@ -111,4 +111,17 @@ class Pathname
     self
   end
 
+  # Writes given lines of text to the file indicated by the Pathname,
+  # and returns the Pathname.  A new line character (<code>$/</code>) is
+  # written after each line.  The file is overwritten if it already
+  # exists.  Any necessary parent directories are created if they do not
+  # exist.
+  #
+  # @param lines [Array<String>]
+  # @return [Pathname]
+  def write_lines(lines)
+    self.make_dirname.open('w'){|f| f.write_lines(lines) }
+    self
+  end
+
 end
