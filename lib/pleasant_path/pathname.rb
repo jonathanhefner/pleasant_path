@@ -89,4 +89,15 @@ class Pathname
     self.move(directory / self.basename)
   end
 
+  # Writes given text to the file indicated by the Pathname, and returns
+  # the Pathname.  The file is overwritten if it already exists.  Any
+  # necessary parent directories are created if they do not exist.
+  #
+  # @param text [String]
+  # @return [Pathname]
+  def write_text(text)
+    self.make_dirname.open('w'){|f| f.write(text) }
+    self
+  end
+
 end
