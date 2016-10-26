@@ -39,4 +39,13 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_touch_file
+    Dir.mktmpdir do |tmp|
+      file = Pathname.new(tmp) / 'path/to/file'
+      refute file.file?
+      assert_equal file, file.touch_file
+      assert file.file?
+    end
+  end
+
 end

@@ -44,4 +44,16 @@ class Pathname
     self
   end
 
+  # Updates the modification time (mtime) and access time (atime) of the
+  # file indicated by the Pathname, and returns the Pathname.  Creates
+  # the file and any necessary parent directories if they do not exist.
+  # See also +FileUtils.touch+.
+  #
+  # @return [Pathname]
+  def touch_file
+    self.make_dirname
+    FileUtils.touch(self)
+    self
+  end
+
 end
