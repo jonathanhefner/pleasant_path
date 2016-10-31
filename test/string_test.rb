@@ -48,4 +48,17 @@ class StringTest < Minitest::Test
     end
   end
 
+  def test_append_to_file
+    Dir.mktmpdir do |tmp|
+      s1 = "the string to write"
+      s2 = "the string to append"
+      file = Pathname.new(tmp) / 'path/to/file'
+
+      assert_equal s1, s1.append_to_file(file)
+      assert_equal s1, file.read
+      assert_equal s2, s2.append_to_file(file)
+      assert_equal (s1 + s2), file.read
+    end
+  end
+
 end

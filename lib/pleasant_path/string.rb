@@ -59,4 +59,15 @@ class String
     self
   end
 
+  # Appends the string to the given file, and returns the string.  The
+  # file is created if it does not exist.  Any necessary parent
+  # directories are created if they do not exist.
+  #
+  # @param file [String, Pathname]
+  # @return [String]
+  def append_to_file(file)
+    file.to_pathname.append_text(self)
+    self
+  end
+
 end
