@@ -38,4 +38,14 @@ class StringTest < Minitest::Test
     assert_equal [Pathname.new(gemspec)], pattern.glob
   end
 
+  def test_write_to_file
+    Dir.mktmpdir do |tmp|
+      s = "the string to write"
+      file = Pathname.new(tmp) / 'path/to/file'
+
+      assert_equal s, s.write_to_file(file)
+      assert_equal s, file.read
+    end
+  end
+
 end

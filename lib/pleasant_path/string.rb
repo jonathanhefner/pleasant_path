@@ -48,4 +48,15 @@ class String
     Pathname.glob(self)
   end
 
+  # Writes the string to the given file, and returns the string.  The
+  # file is overwritten if it already exists.  Any necessary parent
+  # directories are created if they do not exist.
+  #
+  # @param file [String, Pathname]
+  # @return [String]
+  def write_to_file(file)
+    file.to_pathname.write_text(self)
+    self
+  end
+
 end
