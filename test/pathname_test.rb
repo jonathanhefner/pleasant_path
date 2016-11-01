@@ -140,4 +140,9 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_read_text
+    file = Pathname.new(__FILE__)
+    assert_equal file.read, file.read_text
+  end
+
 end

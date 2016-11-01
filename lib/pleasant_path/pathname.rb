@@ -136,4 +136,9 @@ class Pathname
     self
   end
 
+  # Alias of +Pathname#read+.
+  #
+  # @return [String]
+  alias :read_text :read
+
 end
