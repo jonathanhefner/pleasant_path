@@ -13,4 +13,15 @@ class IOTest < Minitest::Test
     end
   end
 
+  def test_read_lines
+    Dir.mktmpdir do |tmp|
+      file = Pathname.new(tmp) / 'file'
+      text = "line 1\nline 2\n"
+      lines = text.split("\n")
+
+      file.write(text)
+      assert_equal lines, file.open('r'){|f| f.read_lines }
+    end
+  end
+
 end
