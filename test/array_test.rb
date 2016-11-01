@@ -13,4 +13,19 @@ class ArrayTest < Minitest::Test
     end
   end
 
+  def test_append_to_file
+    Dir.mktmpdir do |tmp|
+      file = Pathname.new(tmp) / 'file'
+      text1 = "line 1\nline 2\n"
+      text2 = "line 3\nline 4\n"
+      lines1 = text1.split("\n")
+      lines2 = text2.split("\n")
+
+      assert_equal lines1, lines1.append_to_file(file)
+      assert_equal text1, file.read()
+      assert_equal lines2, lines2.append_to_file(file)
+      assert_equal (text1 + text2), file.read()
+    end
+  end
+
 end

@@ -12,4 +12,16 @@ class Array
     self
   end
 
+  # Appends the array as lines to the given file, and returns the array.
+  # A new line character (<code>$/</code>) is written after each line.
+  # The file is created if it does not exist.  Any necessary parent
+  # directories are created if they do not exist.
+  #
+  # @param file [String, Pathname]
+  # @return [Array]
+  def append_to_file(file)
+    file.to_pathname.append_lines(self)
+    self
+  end
+
 end
