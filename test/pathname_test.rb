@@ -145,4 +145,15 @@ class PathnameTest < Minitest::Test
     assert_equal file.read, file.read_text
   end
 
+  def test_read_lines
+    Dir.mktmpdir do |tmp|
+      file = Pathname.new(tmp) / 'file'
+      text = "line 1\nline 2\n"
+      lines = text.split("\n")
+
+      file.write(text)
+      assert_equal lines, file.read_lines
+    end
+  end
+
 end

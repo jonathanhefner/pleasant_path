@@ -141,4 +141,17 @@ class Pathname
   # @return [String]
   alias :read_text :read
 
+  # Reads from the file indicated by the Pathname all lines, and returns
+  # them as an array, end-of-line characters excluded.  The
+  # <code>$/</code> global string specifies what end-of-line characters
+  # to look for.  See also +IO#read_lines+.
+  #
+  # (Not to be confused with +Pathname#readlines+ which retains
+  # end-of-line characters in every string it returns.)
+  #
+  # @return [Array<String>]
+  def read_lines
+    self.open('r'){|f| f.read_lines }
+  end
+
 end
