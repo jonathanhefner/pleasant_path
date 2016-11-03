@@ -35,6 +35,15 @@ class Pathname
     self.children(false).empty?
   end
 
+  # Returns the immediate (non-recursive) child directories of the
+  # directory indicated by the Pathname.  Returned Pathnames are
+  # prefixed by the original Pathname.
+  #
+  # @return [Array<Pathname>]
+  def dirs
+    self.children.tap{|c| c.select!(&:dir?) }
+  end
+
   # Alias of +Pathname#mkpath+, but this method returns the Pathname.
   #
   # @return [Pathname]
