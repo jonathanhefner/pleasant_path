@@ -21,6 +21,15 @@ class PathnameTest < Minitest::Test
     assert file.dirname.dir?
   end
 
+  def test_dir_empty?
+    Dir.mktmpdir do |tmp|
+      tmp = Pathname.new(tmp)
+      assert tmp.dir_empty?
+      (tmp / 'child').mkpath
+      refute tmp.dir_empty?
+    end
+  end
+
   def test_make_dir
     Dir.mktmpdir do |tmp|
       dir = Pathname.new(tmp) / 'path/to/dir'

@@ -27,6 +27,14 @@ class Pathname
   # @return [Boolean]
   alias :dir? :directory?
 
+  # True if the directory indicated by the Pathname contains no other
+  # directories or files.
+  #
+  # @return [Boolean]
+  def dir_empty?
+    self.children(false).empty?
+  end
+
   # Alias of +Pathname#mkpath+, but this method returns the Pathname.
   #
   # @return [Pathname]
