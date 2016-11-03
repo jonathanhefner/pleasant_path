@@ -53,6 +53,15 @@ class Pathname
     self.find.select(&:dir?).tap(&:shift)
   end
 
+  # Returns the immediate (non-recursive) child files of the directory
+  # indicated by the Pathname.  Returned Pathnames are prefixed by the
+  # original Pathname.
+  #
+  # @return [Array<Pathname>]
+  def files
+    self.children.tap{|c| c.select!(&:file?) }
+  end
+
   # Alias of +Pathname#mkpath+, but this method returns the Pathname.
   #
   # @return [Pathname]
