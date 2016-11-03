@@ -175,4 +175,23 @@ class Pathname
     File.edit_text(self, &block)
   end
 
+  # Reads the contents of the file indicated by the Pathname into memory
+  # as an array of lines, and yields the array to the given block for
+  # editing.  Writes the return value of the block back to the file,
+  # overwriting previous contents.  The <code>$/</code> global string
+  # specifies what end-of-line characters to use for both reading and
+  # writing.  Returns the array of lines that comprises the file's new
+  # contents.  See also +File.edit_lines+.
+  #
+  # @example Dedup lines of file
+  #   path.edit_lines(&:uniq)
+  #
+  # @yield [lines] edits current file contents
+  # @yieldparam lines [Array<String>] current contents
+  # @yieldreturn [Array<String>] new contents
+  # @return [Array<String>]
+  def edit_lines(&block)
+    File.edit_lines(self, &block)
+  end
+
 end
