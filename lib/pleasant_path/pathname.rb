@@ -154,4 +154,25 @@ class Pathname
     self.open('r'){|f| f.read_lines }
   end
 
+  # Reads the contents of the file indicated by the Pathname into memory
+  # as a string, and yields the string to the given block for editing.
+  # Writes the return value of the block back to the file, overwriting
+  # previous contents.  Returns the file's new contents.  See also
+  # +File.edit_text+.
+  #
+  # @example Update YAML data file
+  #   path.edit_text do |text|
+  #     data = YAML.load(text)
+  #     data['deeply']['nested']['key'] = 'new value'
+  #     data.to_yaml
+  #   end
+  #
+  # @yield [text] edits current file contents
+  # @yieldparam text [String] current contents
+  # @yieldreturn [String] new contents
+  # @return [String]
+  def edit_text(&block)
+    File.edit_text(self, &block)
+  end
+
 end

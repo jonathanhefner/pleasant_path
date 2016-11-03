@@ -156,4 +156,15 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_edit_text
+    Dir.mktmpdir do |tmp|
+      file = Pathname.new(tmp) / 'file'
+      text = "line 1\nline 2\n"
+
+      file.write(text)
+      assert_equal text.reverse, file.edit_text(&:reverse)
+      assert_equal text.reverse, file.read
+    end
+  end
+
 end
