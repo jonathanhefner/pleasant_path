@@ -41,6 +41,17 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_dirs_r
+    Dir.mktmpdir do |tmp|
+      tmp = Pathname.new(tmp)
+      d1 = (tmp / 'dir1/dir1').tap(&:mkpath)
+      d2 = (tmp / 'dir2/dir2').tap(&:mkpath)
+      FileUtils.touch(tmp / 'file')
+
+      assert_same_elements [d1, d1.dirname, d2, d2.dirname], tmp.dirs_r
+    end
+  end
+
   def test_make_dir
     Dir.mktmpdir do |tmp|
       dir = Pathname.new(tmp) / 'path/to/dir'
