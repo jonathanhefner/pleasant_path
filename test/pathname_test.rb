@@ -179,4 +179,17 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_append_file
+    Dir.mktmpdir do |tmp|
+      tmp = Pathname.new(tmp)
+      text1 = "line 1\nline 2\n"
+      file1 = (tmp / 'file1').tap{|f| f.write(text1) }
+      text2 = "line 3\nline 4\n"
+      file2 = (tmp / 'file2').tap{|f| f.write(text2) }
+
+      assert_equal file1, file1.append_file(file2)
+      assert_equal (text1 + text2), file1.read()
+    end
+  end
+
 end

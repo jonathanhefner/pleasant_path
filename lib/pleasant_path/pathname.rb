@@ -194,4 +194,14 @@ class Pathname
     File.edit_lines(self, &block)
   end
 
+  # Appends the contents of another file to the destination indicated by
+  # Pathname.  Returns the destination Pathname.
+  #
+  # @param source [String, Pathname]
+  # @return [Pathname]
+  def append_file(source)
+    self.open('a'){|destination| IO::copy_stream(source, destination) }
+    self
+  end
+
 end
