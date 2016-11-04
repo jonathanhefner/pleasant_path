@@ -22,6 +22,16 @@ class Pathname
     self.dirname / sibling
   end
 
+  # Returns the +basename+ of the Pathname's parent directory.
+  #
+  # @example
+  #   Pathname.new("path/to/file").parentname.to_s #=> "to"
+  #
+  # @return [Pathname]
+  def parentname
+    self.dirname.basename
+  end
+
   # Alias of +Pathname#directory?+.
   #
   # @return [Boolean]

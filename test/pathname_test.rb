@@ -14,6 +14,11 @@ class PathnameTest < Minitest::Test
     assert_equal p2, (p1 ^ 'file2')
   end
 
+  def test_parentname
+    p = Pathname.new('path/to/file')
+    assert_equal p.dirname.basename, p.parentname
+  end
+
   def test_dir?
     file = Pathname.new(__FILE__)
 
