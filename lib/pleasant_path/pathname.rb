@@ -144,6 +144,20 @@ class Pathname
     self.move(directory / self.basename)
   end
 
+  # Copies the file or directory indicated by the Pathname to the given
+  # destination, and returns that destination as a Pathname.  Creates
+  # any necessary parent directories if they do not exist.  See also
+  # +FileUtils.cp_r+.
+  #
+  # @param destination [Pathname, String]
+  # @return [Pathname]
+  def copy(destination)
+    destination = destination.to_pathname
+    destination.make_dirname
+    FileUtils.cp_r(self, destination)
+    destination
+  end
+
   # Writes given text to the file indicated by the Pathname, and returns
   # the Pathname.  The file is overwritten if it already exists.  Any
   # necessary parent directories are created if they do not exist.
