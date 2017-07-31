@@ -158,6 +158,16 @@ class Pathname
     destination
   end
 
+  # Copies the file or directory indicated by the Pathname into the
+  # given directory, and returns the resultant path as a Pathname.
+  # Creates any necessary parent directories if they do not exist.
+  #
+  # @param directory [Pathname, String]
+  # @return [Pathname]
+  def copy_into(directory)
+    self.copy(directory / self.basename)
+  end
+
   # Writes given text to the file indicated by the Pathname, and returns
   # the Pathname.  The file is overwritten if it already exists.  Any
   # necessary parent directories are created if they do not exist.

@@ -164,6 +164,19 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_copy_into
+    Dir.mktmpdir do |tmp|
+      src = Pathname.new(tmp) / 'src/path/x'
+      src.mkpath
+      dest = Pathname.new(tmp) / 'dest/path/x'
+
+      refute dest.exist?
+      assert_equal dest, src.copy_into(dest.dirname)
+      assert dest.exist?
+      assert src.exist?
+    end
+  end
+
   def test_write_text
     Dir.mktmpdir do |tmp|
       file = Pathname.new(tmp) / 'path/to/file'
