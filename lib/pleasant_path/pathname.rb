@@ -120,22 +120,23 @@ class Pathname
     self
   end
 
-  # Moves the file indicated by Pathname to the given destination, and
-  # returns that destination as a Pathname.  Creates any necessary
-  # parent directories if they do not exist.
+  # Moves the file or directory indicated by the Pathname to the given
+  # destination, and returns that destination as a Pathname.  Creates
+  # any necessary parent directories if they do not exist.  See also
+  # +FileUtils.mv+.
   #
   # @param destination [Pathname, String]
   # @return [Pathname]
   def move(destination)
     destination = destination.to_pathname
     destination.make_dirname
-    self.rename(destination)
+    FileUtils.mv(self, destination)
     destination
   end
 
-  # Moves the file indicated by Pathname into the given directory, and
-  # returns the resultant path to the file as a Pathname.  Creates any
-  # necessary parent directories if they do not exist.
+  # Moves the file or directory indicated by the Pathname into the given
+  # directory, and returns the resultant path as a Pathname.  Creates
+  # any necessary parent directories if they do not exist.
   #
   # @param directory [Pathname, String]
   # @return [Pathname]
