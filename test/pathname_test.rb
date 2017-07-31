@@ -177,6 +177,19 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_rename_basename
+    Dir.mktmpdir do |tmp|
+      old_path = Pathname.new(tmp) / 'nested/path/x'
+      old_path.mkpath
+      new_path = Pathname.new(tmp) / 'nested/path/y'
+
+      refute new_path.exist?
+      assert_equal new_path, old_path.rename_basename(new_path.basename)
+      assert new_path.exist?
+      refute old_path.exist?
+    end
+  end
+
   def test_write_text
     Dir.mktmpdir do |tmp|
       file = Pathname.new(tmp) / 'path/to/file'

@@ -168,6 +168,16 @@ class Pathname
     self.copy(directory / self.basename)
   end
 
+  # Renames the file or directory indicated by the Pathname, but
+  # preserves its location as indicated by +dirname+.  Returns the
+  # resultant path as a Pathname.
+  #
+  # @param new_basename [String]
+  # @return [Pathname]
+  def rename_basename(new_basename)
+    self.move(self.dirname / new_basename)
+  end
+
   # Writes given text to the file indicated by the Pathname, and returns
   # the Pathname.  The file is overwritten if it already exists.  Any
   # necessary parent directories are created if they do not exist.
