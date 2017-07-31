@@ -190,6 +190,43 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_rename_extname
+    [
+      [".a", ".b"],
+      ["", ".b"],
+      [".a", ""],
+    ].each do |old_extname, new_extname|
+      Dir.mktmpdir do |tmp|
+        old_path = Pathname.new(tmp) / "nested/path/file#{old_extname}"
+        old_path.mkpath
+        new_path = Pathname.new(tmp) / "nested/path/file#{new_extname}"
+
+        refute new_path.exist?
+        assert_equal new_path, old_path.rename_extname(new_extname)
+        assert new_path.exist?
+        refute old_path.exist?
+      end
+    end
+  end
+
+  def test_rename_extname_missing_dot
+    [
+      [".a", "b"],
+      ["", "b"],
+    ].each do |old_extname, new_extname|
+      Dir.mktmpdir do |tmp|
+        old_path = Pathname.new(tmp) / "nested/path/file#{old_extname}"
+        old_path.mkpath
+        new_path = Pathname.new(tmp) / "nested/path/file.#{new_extname}"
+
+        refute new_path.exist?
+        assert_equal new_path, old_path.rename_extname(new_extname)
+        assert new_path.exist?
+        refute old_path.exist?
+      end
+    end
+  end
+
   def test_write_text
     Dir.mktmpdir do |tmp|
       file = Pathname.new(tmp) / 'path/to/file'

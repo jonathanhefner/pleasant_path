@@ -178,6 +178,18 @@ class Pathname
     self.move(self.dirname / new_basename)
   end
 
+  # Renames the file extension of the file indicated by the Pathname.
+  # If the file has no extension, the new extension is appended.
+  #
+  # @param new_extname [String]
+  # @return [Pathname]
+  def rename_extname(new_extname)
+    unless new_extname.start_with?(".") || new_extname.empty?
+      new_extname = ".#{new_extname}"
+    end
+    self.move(self.sub_ext(new_extname))
+  end
+
   # Writes given text to the file indicated by the Pathname, and returns
   # the Pathname.  The file is overwritten if it already exists.  Any
   # necessary parent directories are created if they do not exist.
