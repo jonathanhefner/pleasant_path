@@ -2,12 +2,15 @@ class String
 
   # Converts the string to a +Pathname+ object.
   #
+  # @example
+  #   "path/to/file".to_pathname  # == Pathname.new("path/to/file")
+  #
   # @return [Pathname]
   def to_pathname
     Pathname.new(self)
   end
 
-  # Alias of +String#to_pathname+.
+  # Alias of {String#to_pathname}.
   #
   # @return [Pathname]
   alias :path :to_pathname
@@ -16,7 +19,7 @@ class String
   # +File.join+) and returns the result as a +Pathname+ object.
   #
   # @example
-  #   ("path/to" / "file").to_s #=> "path/to/file"
+  #   "path/to" / "file"  # == Pathname.new("path/to/file")
   #
   # @param child [String]
   # @return [Pathname]
@@ -28,10 +31,10 @@ class String
   # path with the argument, and returns the result as a +Pathname+
   # object.  The mnenomic for this operator is that the resultant path
   # goes up one directory level from the original, then goes down to the
-  # directory specified by the argument.  See also +Pathname#^+.
+  # directory specified by the argument.  See also {Pathname#^}.
   #
   # @example
-  #   ("path/to/file1" ^ "file2").to_s #=> "path/to/file2"
+  #   "path/to/file1" ^ "file2"  # == Pathname.new("path/to/file2")
   #
   # @param sibling [Pathname, String]
   # @return [Pathname]
@@ -43,6 +46,9 @@ class String
   # into matching paths as +Pathname+ objects.  See also +Dir.glob+ and
   # +Pathname.glob+.
   #
+  # @example
+  #   "*.txt".glob  # == Pathname.glob("*.txt")
+  #
   # @return [Array<Pathname>]
   def glob
     Pathname.glob(self)
@@ -51,6 +57,10 @@ class String
   # Writes the string to the given file, and returns the string.  The
   # file is overwritten if it already exists.  Any necessary parent
   # directories are created if they do not exist.
+  #
+  # @example
+  #   "hello world".write_to_file("out.txt")  # == "hello world"
+  #   File.read("out.txt")                    # == "hello world"
   #
   # @param file [String, Pathname]
   # @return [String]
@@ -62,6 +72,12 @@ class String
   # Appends the string to the given file, and returns the string.  The
   # file is created if it does not exist.  Any necessary parent
   # directories are created if they do not exist.
+  #
+  # @example
+  #   "hello".append_to_file("out.txt")   # == "hello"
+  #   File.read("out.txt")                # == "hello"
+  #   " world".append_to_file("out.txt")  # == " world"
+  #   File.read("out.txt")                # == "hello world"
   #
   # @param file [String, Pathname]
   # @return [String]
