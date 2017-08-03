@@ -1,7 +1,7 @@
-require 'pathname'
-require 'pleasant_path/version'
-require 'pleasant_path/array'
-require 'pleasant_path/file'
-require 'pleasant_path/io'
-require 'pleasant_path/pathname'
-require 'pleasant_path/string'
+require "pathname"
+require_relative "pleasant_path/version"
+require_relative "pleasant_path/array"
+require_relative "pleasant_path/file"
+require_relative "pleasant_path/io"
+require_relative "pleasant_path/pathname"
+require_relative "pleasant_path/string"
