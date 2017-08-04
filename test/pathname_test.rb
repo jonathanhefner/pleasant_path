@@ -3,19 +3,19 @@ require 'test_helper'
 class PathnameTest < Minitest::Test
 
   def test_to_pathname
-    p = Pathname.new('path/to/file')
+    p = Pathname.new("path/to/file")
     assert_same p, p.to_pathname
   end
 
   def test_op_caret
-    p1 = Pathname.new('path/to/file1')
-    p2 = Pathname.new('path/to/file2')
+    p1 = Pathname.new("path/to/file1")
+    p2 = Pathname.new("path/to/file2")
 
-    assert_equal p2, (p1 ^ 'file2')
+    assert_equal p2, (p1 ^ "file2")
   end
 
   def test_parentname
-    p = Pathname.new('path/to/file')
+    p = Pathname.new("path/to/file")
     assert_equal p.dirname.basename, p.parentname
   end
 
@@ -27,63 +27,49 @@ class PathnameTest < Minitest::Test
   end
 
   def test_dir_empty?
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      assert tmp.dir_empty?
-      (tmp / 'child').mkpath
-      refute tmp.dir_empty?
+    with_deep_path(:dir) do |path|
+      assert path.dir_empty?
+      refute path.dirname.dir_empty?
     end
   end
 
   def test_dirs
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      d1 = (tmp / 'dir1/dir1').tap(&:mkpath)
-      d2 = (tmp / 'dir2/dir2').tap(&:mkpath)
-      FileUtils.touch(tmp / 'file')
+    with_deep_path do |path|
+      dirs = make_dirs(path, "d1", "d2")
+      make_files(path, "f1", "d2/d3/f2")
 
-      assert_same_elements [d1.dirname, d2.dirname], tmp.dirs
+      assert_equal dirs.sort, path.dirs.sort
     end
   end
 
   def test_dirs_r
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      d1 = (tmp / 'dir1/dir1').tap(&:mkpath)
-      d2 = (tmp / 'dir2/dir2').tap(&:mkpath)
-      FileUtils.touch(tmp / 'file')
+    with_deep_path do |path|
+      dirs = make_dirs(path, "d1", "d2", "d2/d3")
+      make_files(path, "f1", "d2/d3/f2")
 
-      assert_same_elements [d1, d1.dirname, d2, d2.dirname], tmp.dirs_r
+      assert_equal dirs.sort, path.dirs_r.sort
     end
   end
 
   def test_files
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      f1 = (tmp / 'file1').tap{|f| FileUtils.touch(f) }
-      f2 = (tmp / 'file2').tap{|f| FileUtils.touch(f) }
-      (tmp / 'dir1').mkpath
-      (tmp / 'dir1/file3').tap{|f| FileUtils.touch(f) }
+    with_deep_path do |path|
+      files = make_files(path, "f1", "f2")
+      make_files(path, "d1/f3")
 
-      assert_same_elements [f1, f2], tmp.files
+      assert_equal files.sort, path.files.sort
     end
   end
 
   def test_files_r
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      f1 = (tmp / 'file1').tap{|f| FileUtils.touch(f) }
-      f2 = (tmp / 'file2').tap{|f| FileUtils.touch(f) }
-      (tmp / 'dir1').mkpath
-      f3 = (tmp / 'dir1/file3').tap{|f| FileUtils.touch(f) }
+    with_deep_path do |path|
+      files = make_files(path, "f1", "f2", "d1/d2/f3")
 
-      assert_same_elements [f1, f2, f3], tmp.files_r
+      assert_equal files.sort, path.files_r.sort
     end
   end
 
   def test_make_dir
-    Dir.mktmpdir do |tmp|
-      dir = Pathname.new(tmp) / 'path/to/dir'
+    with_deep_path do |dir|
       refute dir.directory?
       assert_equal dir, dir.make_dir
       assert dir.directory?
@@ -91,8 +77,8 @@ class PathnameTest < Minitest::Test
   end
 
   def test_make_dirname
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
+    with_deep_path do |file|
+      refute file.dirname.directory?
       assert_equal file, file.make_dirname
       assert file.dirname.directory?
       refute file.exist?
@@ -100,8 +86,7 @@ class PathnameTest < Minitest::Test
   end
 
   def test_touch_file
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
+    with_deep_path do |file|
       refute file.file?
       assert_equal file, file.touch_file
       assert file.file?
@@ -109,9 +94,7 @@ class PathnameTest < Minitest::Test
   end
 
   def test_delete!
-    Dir.mktmpdir do |tmp|
-      path = Pathname.new(tmp) / 'path/to/dir'
-
+    with_deep_path do |path|
       assert_equal path, path.delete! # doesn't exist, but nothing raised
 
       path.mkpath
@@ -126,62 +109,52 @@ class PathnameTest < Minitest::Test
   end
 
   def test_move
-    Dir.mktmpdir do |tmp|
-      src = Pathname.new(tmp) / 'src/path/x'
-      src.mkpath
-      dest = Pathname.new(tmp) / 'dest/path/y'
+    with_deep_path(:file) do |source|
+      destination = source.dirname / "destination/dir/file"
 
-      refute dest.exist?
-      assert_equal dest, src.move(dest)
-      assert dest.exist?
-      refute src.exist?
+      refute destination.exist?
+      assert_equal destination, source.move(destination)
+      assert destination.exist?
+      refute source.exist?
     end
   end
 
   def test_move_into
-    Dir.mktmpdir do |tmp|
-      src = Pathname.new(tmp) / 'src/path/x'
-      src.mkpath
-      dest = Pathname.new(tmp) / 'dest/path/x'
+    with_deep_path(:file) do |source|
+      destination = source.dirname / "destination/dir" / source.basename
 
-      refute dest.exist?
-      assert_equal dest, src.move_into(dest.dirname)
-      assert dest.exist?
-      refute src.exist?
+      refute destination.exist?
+      assert_equal destination, source.move_into(destination.dirname)
+      assert destination.exist?
+      refute source.exist?
     end
   end
 
   def test_copy
-    Dir.mktmpdir do |tmp|
-      src = Pathname.new(tmp) / 'src/path/x'
-      src.mkpath
-      dest = Pathname.new(tmp) / 'dest/path/y'
+    with_deep_path(:file) do |source|
+      destination = source.dirname / "destination/dir/file"
 
-      refute dest.exist?
-      assert_equal dest, src.copy(dest)
-      assert dest.exist?
-      assert src.exist?
+      refute destination.exist?
+      assert_equal destination, source.copy(destination)
+      assert destination.exist?
+      assert source.exist?
     end
   end
 
   def test_copy_into
-    Dir.mktmpdir do |tmp|
-      src = Pathname.new(tmp) / 'src/path/x'
-      src.mkpath
-      dest = Pathname.new(tmp) / 'dest/path/x'
+    with_deep_path(:file) do |source|
+      destination = source.dirname / "destination/dir" / source.basename
 
-      refute dest.exist?
-      assert_equal dest, src.copy_into(dest.dirname)
-      assert dest.exist?
-      assert src.exist?
+      refute destination.exist?
+      assert_equal destination, source.copy_into(destination.dirname)
+      assert destination.exist?
+      assert source.exist?
     end
   end
 
   def test_rename_basename
-    Dir.mktmpdir do |tmp|
-      old_path = Pathname.new(tmp) / 'nested/path/x'
-      old_path.mkpath
-      new_path = Pathname.new(tmp) / 'nested/path/y'
+    with_deep_path(:file) do |old_path|
+      new_path = old_path.dirname / "renamed"
 
       refute new_path.exist?
       assert_equal new_path, old_path.rename_basename(new_path.basename)
@@ -196,15 +169,14 @@ class PathnameTest < Minitest::Test
       ["", ".b"],
       [".a", ""],
     ].each do |old_extname, new_extname|
-      Dir.mktmpdir do |tmp|
-        old_path = Pathname.new(tmp) / "nested/path/file#{old_extname}"
-        old_path.mkpath
-        new_path = Pathname.new(tmp) / "nested/path/file#{new_extname}"
+      with_deep_path(:dir) do |path|
+        old_file = (path / "file#{old_extname}").tap{|f| FileUtils.touch(f) }
+        new_file = (path / "file#{new_extname}")
 
-        refute new_path.exist?
-        assert_equal new_path, old_path.rename_extname(new_extname)
-        assert new_path.exist?
-        refute old_path.exist?
+        refute new_file.exist?
+        assert_equal new_file, old_file.rename_extname(new_extname)
+        assert new_file.exist?
+        refute old_file.exist?
       end
     end
   end
@@ -214,65 +186,60 @@ class PathnameTest < Minitest::Test
       [".a", "b"],
       ["", "b"],
     ].each do |old_extname, new_extname|
-      Dir.mktmpdir do |tmp|
-        old_path = Pathname.new(tmp) / "nested/path/file#{old_extname}"
-        old_path.mkpath
-        new_path = Pathname.new(tmp) / "nested/path/file.#{new_extname}"
+      with_deep_path(:dir) do |path|
+        old_file = (path / "file#{old_extname}").tap{|f| FileUtils.touch(f) }
+        new_file = (path / "file.#{new_extname}")
 
-        refute new_path.exist?
-        assert_equal new_path, old_path.rename_extname(new_extname)
-        assert new_path.exist?
-        refute old_path.exist?
+        refute new_file.exist?
+        assert_equal new_file, old_file.rename_extname(new_extname)
+        assert new_file.exist?
+        refute old_file.exist?
       end
     end
   end
 
   def test_write_text
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
-      text = "line 1\nline 2\n"
+    text = "line 1\nline 2\n"
 
+    with_deep_path do |file|
       assert_equal file, file.write_text(text)
-      assert_equal text, file.read()
+      assert_equal text, file.read
     end
   end
 
   def test_append_text
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
-      text1 = "line 1\nline 2\n"
-      text2 = "line 3\nline 4\n"
+    text1 = "line 1\nline 2\n"
+    text2 = "line 3\nline 4\n"
 
+    with_deep_path do |file|
       assert_equal file, file.append_text(text1)
-      assert_equal text1, file.read()
+      assert_equal text1, file.read
       assert_equal file, file.append_text(text2)
-      assert_equal (text1 + text2), file.read()
+      assert_equal (text1 + text2), file.read
     end
   end
 
   def test_write_lines
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
-      text = "line 1\nline 2\n"
-      lines = text.split("\n")
+    text = "line 1\nline 2\n"
+    lines = text.split("\n")
 
+    with_deep_path do |file|
       assert_equal file, file.write_lines(lines)
-      assert_equal text, file.read()
+      assert_equal text, file.read
     end
   end
 
   def test_append_lines
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'path/to/file'
-      text1 = "line 1\nline 2\n"
-      text2 = "line 3\nline 4\n"
-      lines1 = text1.split("\n")
-      lines2 = text2.split("\n")
+    text1 = "line 1\nline 2\n"
+    text2 = "line 3\nline 4\n"
+    lines1 = text1.split("\n")
+    lines2 = text2.split("\n")
 
+    with_deep_path do |file|
       assert_equal file, file.append_lines(lines1)
-      assert_equal text1, file.read()
+      assert_equal text1, file.read
       assert_equal file, file.append_lines(lines2)
-      assert_equal (text1 + text2), file.read()
+      assert_equal (text1 + text2), file.read
     end
   end
 
@@ -282,49 +249,56 @@ class PathnameTest < Minitest::Test
   end
 
   def test_read_lines
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      text = "line 1\nline 2\n"
-      lines = text.split("\n")
+    text = "line 1\nline 2\n"
+    lines = text.split("\n")
 
-      file.write(text)
+    with_temp_file(text) do |file|
       assert_equal lines, file.read_lines
     end
   end
 
   def test_edit_text
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      text = "line 1\nline 2\n"
+    text = "line 1\nline 2\n"
 
-      file.write(text)
+    with_temp_file(text) do |file|
       assert_equal text.reverse, file.edit_text(&:reverse)
       assert_equal text.reverse, file.read
     end
   end
 
   def test_edit_lines
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      text = "line 1\nline 2\n"
-      lines = text.split("\n")
+    text = "line 1\nline 2\n"
+    lines = text.split("\n")
 
-      file.write(text)
+    with_temp_file(text) do |file|
       assert_equal lines.reverse, file.edit_lines(&:reverse)
       assert_equal lines.reverse, file.read.split("\n")
     end
   end
 
   def test_append_file
-    Dir.mktmpdir do |tmp|
-      tmp = Pathname.new(tmp)
-      text1 = "line 1\nline 2\n"
-      file1 = (tmp / 'file1').tap{|f| f.write(text1) }
-      text2 = "line 3\nline 4\n"
-      file2 = (tmp / 'file2').tap{|f| f.write(text2) }
+    text1 = "line 1\nline 2\n"
+    text2 = "line 3\nline 4\n"
 
-      assert_equal file1, file1.append_file(file2)
-      assert_equal (text1 + text2), file1.read()
+    with_temp_file(text1) do |file|
+      appendix = (file.dirname / "appendix").tap{|f| f.write(text2) }
+
+      assert_equal file, file.append_file(appendix)
+      assert_equal (text1 + text2), file.read
+    end
+  end
+
+
+  private
+
+  def make_dirs(path, *dirs)
+    dirs.map{|d| path / d }.each(&:mkpath)
+  end
+
+  def make_files(path, *files)
+    files.map{|f| path / f }.each do |f|
+      f.dirname.mkpath
+      FileUtils.touch(f)
     end
   end
 

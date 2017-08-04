@@ -5,10 +5,7 @@ require 'json/add/core'
 class PathnameJsonTest < Minitest::Test
 
   def test_read_json
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      file.write(JSON.dump(SERIALIZABLE_DATA))
-
+    with_temp_file(JSON.dump(SERIALIZABLE_DATA)) do |file|
       result = file.read_json
       refute_equal SERIALIZABLE_DATA, result
       assert_equal SERIALIZABLE_BASIC_DATA, (result & SERIALIZABLE_BASIC_DATA)
@@ -16,10 +13,7 @@ class PathnameJsonTest < Minitest::Test
   end
 
   def test_read_json_with_options
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      file.write("42")
-
+    with_temp_file("42") do |file|
       assert_equal 42, file.read_json(quirks_mode: true)
       assert_raises(JSON::ParserError) do
         file.read_json(quirks_mode: false)
@@ -28,19 +22,13 @@ class PathnameJsonTest < Minitest::Test
   end
 
   def test_load_json
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      file.write(JSON.dump(SERIALIZABLE_DATA))
-
+    with_temp_file(JSON.dump(SERIALIZABLE_DATA)) do |file|
       assert_equal SERIALIZABLE_DATA, file.load_json
     end
   end
 
   def test_read_load_with_options
-    Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / 'file'
-      file.write("42")
-
+    with_temp_file("42") do |file|
       assert_equal 42, file.load_json(quirks_mode: true)
       assert_raises(JSON::ParserError) do
         file.load_json(quirks_mode: false)
