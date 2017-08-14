@@ -40,4 +40,28 @@ class PleasantPath::FileTest < Minitest::Test
     end
   end
 
+  def test_common_path
+    [
+      ["a/b/x", "a/b/y", "a/b/z"],
+      ["a/b/x", "a/b/y", "a/z"],
+      ["a/b/x", "a/b/y", "a"],
+      ["a", "b"],
+      ["_a/_b/_x", "_a/_b/_y", "_a/_b/_z"],
+      ["_a/_b/_x", "_a/_b/_y", "_a/_z"],
+      ["_a/_b/_x", "_a/_b/_y", "_a"],
+      ["_a", "_b"],
+    ].each do |paths|
+      result = File.common_path(paths)
+
+      assert paths.all?{|p| p.start_with?(result) }
+
+      refute paths.all?{|p| p[result.length] == "/" }
+
+      depth = result.split("/").length
+      alternatives = paths.map{|p| p.split("/").take(depth + 1).join("/") } - [result]
+
+      refute alternatives.any?{|a| paths.all?{|p| p.start_with?(a) } }
+    end
+  end
+
 end

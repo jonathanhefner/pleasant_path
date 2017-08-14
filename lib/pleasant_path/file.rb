@@ -1,5 +1,26 @@
 class File
 
+  # Computes the longest path that every path in a list has in common.
+  #
+  # @example
+  #   File.common_path(["a/b/x", "a/b/y", "a/b/z"])  # == "a/b/"
+  #   File.common_path(["a/b/x", "a/b/y", "a/z"])    # == "a/"
+  #   File.common_path(["a/b/x", "a/b/y", "a"])      # == "a"
+  #
+  # @param paths [Enumerable<String>]
+  # @return [String]
+  def self.common_path(paths)
+    return paths.first if paths.length <= 1
+    short, long = paths.minmax
+    i = 0
+    last = -1
+    while i < short.length && short[i] == long[i]
+      last = i if short[i] == "/".freeze
+      i += 1
+    end
+    short[0, i == short.length ? i : (last + 1)]
+  end
+
   # Reads from the specified file its contents as a string, and yields
   # the string to the given block for editing.  Writes the return value
   # of the block back to the file, overwriting previous contents.
