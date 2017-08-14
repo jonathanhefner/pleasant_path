@@ -19,6 +19,27 @@ class PathnameTest < Minitest::Test
     assert_equal p.dirname.basename, p.parentname
   end
 
+  def test_common_path
+    [
+      ["dir1/file1", "dir1/subdir1/file2"],
+      ["dir1/subdir1/file2", "dir1/subdir1/file3"],
+      ["dir1/subdir1/file3", "dir2/file4"],
+    ].each do |paths|
+      result = paths.map{|p| Pathname.new(p) }.reduce(&:common_path)
+
+      assert_instance_of Pathname, result
+
+      assert paths.all?{|p| p.start_with?(result.to_s) }
+
+      refute paths.all?{|p| p[result.to_s.length] == "/" }
+
+      depth = result.to_s.split("/").length
+      alternatives = paths.map{|p| p.split("/").take(depth + 1).join("/") } - [result.to_s]
+
+      refute alternatives.any?{|a| paths.all?{|p| p.start_with?(a) } }
+    end
+  end
+
   def test_dir?
     file = Pathname.new(__FILE__)
 

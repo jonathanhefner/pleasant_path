@@ -32,6 +32,27 @@ class Pathname
     self.dirname.basename
   end
 
+  # Computes the longest path that the Pathname and +other+ have in
+  # common.  See also {File.common_path}.
+  #
+  # @example
+  #   f1 = Pathname.new("dir1/file1")
+  #   f2 = Pathname.new("dir1/subdir1/file2")
+  #   f3 = Pathname.new("dir1/subdir1/file3")
+  #   f4 = Pathname.new("dir2/file4")
+  #
+  #   f1.common_path(f2)  # == Pathname.new("dir1/")
+  #   f2.common_path(f3)  # == Pathname.new("dir1/subdir1/")
+  #   f3.common_path(f4)  # == Pathname.new("")
+  #
+  #   [f1, f2, f3].reduce(&:common_path)  # == Pathname.new("dir1/")
+  #
+  # @param other [Pathname]
+  # @return [Pathname]
+  def common_path(other)
+    File.common_path([self.to_s, other.to_s]).to_pathname
+  end
+
   # Alias of +Pathname#directory?+.
   #
   # @return [Boolean]
