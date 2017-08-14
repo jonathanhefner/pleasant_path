@@ -1,5 +1,10 @@
 class Pathname
 
+  # {https://ruby-doc.org/core/File/Constants.html#NULL +File::NULL+} as
+  # a Pathname.  On POSIX systems, this should be equivalent to
+  # +Pathname.new("/dev/null")+.
+  NULL = Pathname.new(File::NULL)
+
   # Returns the Pathname unmodified.  Exists for parity with
   # {String#to_pathname}.
   #

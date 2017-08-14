@@ -2,6 +2,10 @@ require 'test_helper'
 
 class PathnameTest < Minitest::Test
 
+  def test_null_constant
+    assert_equal File::NULL, Pathname::NULL.to_s
+  end
+
   def test_to_pathname
     p = Pathname.new("path/to/file")
     assert_same p, p.to_pathname
