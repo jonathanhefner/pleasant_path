@@ -26,6 +26,7 @@ class File
       text = yield f.read
       f.seek(0, IO::SEEK_SET)
       f.write(text)
+      f.truncate(f.pos)
       text
     end
   end
@@ -55,6 +56,8 @@ class File
       lines = yield f.read_lines
       f.seek(0, IO::SEEK_SET)
       f.write_lines(lines)
+      f.truncate(f.pos)
+      lines
     end
   end
 
