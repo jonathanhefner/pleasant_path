@@ -361,7 +361,9 @@ class Pathname
   # @param new_basename [String]
   # @return [Pathname]
   def rename_basename(new_basename)
-    self.move(self.dirname / new_basename)
+    new_path = self.dirname / new_basename
+    self.rename(new_path)
+    new_path
   end
 
   # Renames the file extension of the file indicated by the Pathname.
@@ -391,7 +393,9 @@ class Pathname
     unless new_extname.start_with?(".") || new_extname.empty?
       new_extname = ".#{new_extname}"
     end
-    self.move(self.sub_ext(new_extname))
+    new_path = self.sub_ext(new_extname)
+    self.rename(new_path)
+    new_path
   end
 
   # Writes given text to the file indicated by the Pathname, and returns

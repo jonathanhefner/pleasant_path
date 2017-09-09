@@ -188,6 +188,15 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_rename_basename_with_different_case
+    with_deep_path(:file) do |old_path|
+      new_path = old_path.dirname / old_path.basename.to_s.swapcase
+
+      assert_equal new_path, old_path.rename_basename(new_path.basename)
+      assert new_path.exist?
+    end
+  end
+
   def test_rename_extname
     [
       [".a", ".b"],
@@ -220,6 +229,16 @@ class PathnameTest < Minitest::Test
         assert new_file.exist?
         refute old_file.exist?
       end
+    end
+  end
+
+  def test_rename_extname_with_different_case
+    with_deep_path(:dir) do |path|
+      old_file = (path / "file.ext").tap{|f| FileUtils.touch(f) }
+      new_file = (path / "file.EXT")
+
+      assert_equal new_file, old_file.rename_extname(new_file.extname)
+      assert new_file.exist?
     end
   end
 
