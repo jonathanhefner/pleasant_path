@@ -15,7 +15,9 @@ class Object
   # @param options [Hash]
   # @return [self]
   def write_to_yaml(file, options = {})
-    File.open(file, 'w'){|f| YAML.dump(self, f, options) }
+    file.to_pathname.make_dirname.open("w") do |f|
+      YAML.dump(self, f, options)
+    end
     self
   end
 

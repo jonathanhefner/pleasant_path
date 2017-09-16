@@ -6,7 +6,7 @@ class ArrayTest < Minitest::Test
     text = "line 1\nline 2\n"
     lines = text.split("\n")
 
-    with_temp_file do |file|
+    with_deep_path do |file|
       assert_equal lines, lines.write_to_file(file)
       assert_equal text, file.read
     end
@@ -18,7 +18,7 @@ class ArrayTest < Minitest::Test
     lines1 = text1.split("\n")
     lines2 = text2.split("\n")
 
-    with_temp_file do |file|
+    with_deep_path do |file|
       assert_equal lines1, lines1.append_to_file(file)
       assert_equal text1, file.read
       assert_equal lines2, lines2.append_to_file(file)

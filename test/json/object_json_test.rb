@@ -6,7 +6,7 @@ class ObjectJsonTest < Minitest::Test
 
   def test_write_to_json
     SERIALIZABLE_DATA.each do |data|
-      with_temp_file do |file|
+      with_deep_path do |file|
         assert_equal data, data.write_to_json(file)
         assert_equal data, file.open('r'){|f| JSON.load(f) }
       end
@@ -14,7 +14,7 @@ class ObjectJsonTest < Minitest::Test
   end
 
   def test_write_to_json_with_options
-    with_temp_file do |file|
+    with_deep_path do |file|
       Float::NAN.write_to_json(file, allow_nan: true) # no error
       assert_raises(JSON::GeneratorError) do
         Float::NAN.write_to_json(file, allow_nan: false)
