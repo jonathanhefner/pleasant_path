@@ -14,7 +14,7 @@ class Pathname
   end
 
   # Joins the parent (+dirname+) of the Pathname with the argument.  The
-  # mnenomic for this operator is that the resultant path goes up one
+  # mnemonic for this operator is that the resultant path goes up one
   # directory level from the original, then goes down to the directory
   # specified by the argument.
   #

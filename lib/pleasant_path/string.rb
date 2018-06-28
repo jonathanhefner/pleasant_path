@@ -29,7 +29,7 @@ class String
 
   # Treating the string as a path, joins the parent (+dirname+) of the
   # path with the argument, and returns the result as a +Pathname+
-  # object.  The mnenomic for this operator is that the resultant path
+  # object.  The mnemonic for this operator is that the resultant path
   # goes up one directory level from the original, then goes down to the
   # directory specified by the argument.  See also {Pathname#^}.
   #
