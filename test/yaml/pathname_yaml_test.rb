@@ -1,5 +1,5 @@
-require 'test_helper'
-require 'pleasant_path/yaml'
+require "test_helper"
+require "pleasant_path/yaml"
 
 class PathnameYamlTest < Minitest::Test
 

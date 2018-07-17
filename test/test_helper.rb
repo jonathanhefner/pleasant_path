@@ -1,8 +1,8 @@
 $/ = "\n"
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'pleasant_path'
+$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+require "pleasant_path"
 
-require 'minitest/autorun'
+require "minitest/autorun"
 
 class Minitest::Test
 

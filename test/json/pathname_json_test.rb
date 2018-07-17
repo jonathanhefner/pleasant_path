@@ -1,6 +1,6 @@
-require 'test_helper'
-require 'pleasant_path/json'
-require 'json/add/core'
+require "test_helper"
+require "pleasant_path/json"
+require "json/add/core"
 
 class PathnameJsonTest < Minitest::Test
 

@@ -415,7 +415,7 @@ class Pathname
   # @param text [String]
   # @return [Pathname]
   def write_text(text)
-    self.make_dirname.open('w'){|f| f.write(text) }
+    self.make_dirname.open("w"){|f| f.write(text) }
     self
   end
 
@@ -436,7 +436,7 @@ class Pathname
   # @param text [String]
   # @return [Pathname]
   def append_text(text)
-    self.make_dirname.open('a'){|f| f.write(text) }
+    self.make_dirname.open("a"){|f| f.write(text) }
     self
   end
 
@@ -456,7 +456,7 @@ class Pathname
   # @param lines [Enumerable<#to_s>]
   # @return [Pathname]
   def write_lines(lines)
-    self.make_dirname.open('w'){|f| f.write_lines(lines) }
+    self.make_dirname.open("w"){|f| f.write_lines(lines) }
     self
   end
 
@@ -476,7 +476,7 @@ class Pathname
   # @param lines [Enumerable<#to_s>]
   # @return [Pathname]
   def append_lines(lines)
-    self.make_dirname.open('a'){|f| f.write_lines(lines) }
+    self.make_dirname.open("a"){|f| f.write_lines(lines) }
     self
   end
 
@@ -500,7 +500,7 @@ class Pathname
   #
   # @return [Array<String>]
   def read_lines
-    self.open('r'){|f| f.read_lines }
+    self.open("r"){|f| f.read_lines }
   end
 
   # Reads the contents of the file indicated by the Pathname into memory
@@ -567,7 +567,7 @@ class Pathname
   # @param source [String, Pathname]
   # @return [Pathname]
   def append_file(source)
-    self.open('a'){|destination| IO::copy_stream(source, destination) }
+    self.open("a"){|destination| IO::copy_stream(source, destination) }
     self
   end
 

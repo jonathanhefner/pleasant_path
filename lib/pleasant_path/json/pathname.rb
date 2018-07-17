@@ -52,7 +52,7 @@ class Pathname
   # @param options [Hash]
   # @return deserialized object
   def load_json(options = {})
-    self.open('r'){|f| JSON.load(f, nil, options) }
+    self.open("r"){|f| JSON.load(f, nil, options) }
   end
 
 end

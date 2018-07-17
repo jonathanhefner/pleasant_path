@@ -43,7 +43,7 @@ class File
   # @yieldreturn [String] new contents
   # @return [String]
   def self.edit_text(filename)
-    self.open(filename, 'r+') do |f|
+    self.open(filename, "r+") do |f|
       text = yield f.read
       f.seek(0, IO::SEEK_SET)
       f.write(text)
@@ -73,7 +73,7 @@ class File
   # @yieldreturn [Array<String>] new contents
   # @return [Array<String>]
   def self.edit_lines(filename)
-    self.open(filename, 'r+') do |f|
+    self.open(filename, "r+") do |f|
       lines = yield f.read_lines
       f.seek(0, IO::SEEK_SET)
       f.write_lines(lines)

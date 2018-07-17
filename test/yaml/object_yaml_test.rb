@@ -1,5 +1,5 @@
-require 'test_helper'
-require 'pleasant_path/yaml'
+require "test_helper"
+require "pleasant_path/yaml"
 
 class ObjectYamlTest < Minitest::Test
 
@@ -7,7 +7,7 @@ class ObjectYamlTest < Minitest::Test
     SERIALIZABLE_DATA.each do |data|
       with_deep_path do |file|
         assert_equal data, data.write_to_yaml(file)
-        assert_equal data, file.open('r'){|f| YAML.load(f) }
+        assert_equal data, file.open("r"){|f| YAML.load(f) }
       end
     end
   end

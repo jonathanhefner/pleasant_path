@@ -12,7 +12,7 @@ class Pathname
   #
   # @return [nil, true, false, Numeric, String, Array, Hash]
   def read_yaml
-    self.open('r'){|f| YAML.safe_load(f, [], [], false, self) }
+    self.open("r"){|f| YAML.safe_load(f, [], [], false, self) }
   end
 
   # Reads the contents of the file indicated by the Pathname, and parses

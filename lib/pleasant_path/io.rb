@@ -18,7 +18,7 @@ class IO
       self.write(line)
       self.write($/)
     end
-    self.write('') # write something even if no lines
+    self.write("") # write something even if no lines
     lines
   end
 

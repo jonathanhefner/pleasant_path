@@ -1,6 +1,6 @@
-require 'test_helper'
-require 'pleasant_path/json'
-require 'json/add/core'
+require "test_helper"
+require "pleasant_path/json"
+require "json/add/core"
 
 class ObjectJsonTest < Minitest::Test
 
@@ -8,7 +8,7 @@ class ObjectJsonTest < Minitest::Test
     SERIALIZABLE_DATA.each do |data|
       with_deep_path do |file|
         assert_equal data, data.write_to_json(file)
-        assert_equal data, file.open('r'){|f| JSON.load(f) }
+        assert_equal data, file.open("r"){|f| JSON.load(f) }
       end
     end
   end

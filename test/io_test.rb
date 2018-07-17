@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class IOTest < Minitest::Test
 
@@ -7,7 +7,7 @@ class IOTest < Minitest::Test
     lines = text.split("\n")
 
     with_temp_file do |file|
-      assert_equal lines, file.open('w'){|f| f.write_lines(lines) }
+      assert_equal lines, file.open("w"){|f| f.write_lines(lines) }
       assert_equal text, file.read
     end
   end
@@ -17,7 +17,7 @@ class IOTest < Minitest::Test
     lines = text.split("\n")
 
     with_temp_file(text) do |file|
-      assert_equal lines, file.open('r'){|f| f.read_lines }
+      assert_equal lines, file.open("r"){|f| f.read_lines }
     end
   end
 
