@@ -13,11 +13,8 @@ class PathnameJsonTest < Minitest::Test
   end
 
   def test_read_json_with_options
-    with_temp_file("42") do |file|
-      assert_equal 42, file.read_json(quirks_mode: true)
-      assert_raises(JSON::ParserError) do
-        file.read_json(quirks_mode: false)
-      end
+    with_temp_file('{ "foo": 42 }') do |file|
+      assert_instance_of OpenStruct, file.read_json(object_class: OpenStruct)
     end
   end
 
@@ -28,11 +25,8 @@ class PathnameJsonTest < Minitest::Test
   end
 
   def test_read_load_with_options
-    with_temp_file("42") do |file|
-      assert_equal 42, file.load_json(quirks_mode: true)
-      assert_raises(JSON::ParserError) do
-        file.load_json(quirks_mode: false)
-      end
+    with_temp_file('{ "foo": 42 }') do |file|
+      assert_instance_of OpenStruct, file.load_json(object_class: OpenStruct)
     end
   end
 
