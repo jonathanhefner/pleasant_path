@@ -109,6 +109,39 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_chdir_with_block
+    old_pwd = Pathname.pwd
+    new_pwd = old_pwd.dirname
+
+    retval = new_pwd.chdir do |path|
+      assert_equal new_pwd, path
+      "expected"
+    end
+    assert_equal "expected", retval
+    assert_equal old_pwd, Pathname.pwd
+  end
+
+  def test_chdir_without_block
+    old_pwd = Pathname.pwd
+    new_pwd = old_pwd.dirname
+
+    retval = new_pwd.chdir
+    assert_equal new_pwd, retval
+    assert_equal new_pwd, Pathname.pwd
+
+    Dir.chdir(old_pwd) # restore
+  end
+
+  def test_chdir_with_nonexistent_dir
+    old_pwd = Pathname.pwd
+    new_pwd = old_pwd + "non/exist/ent"
+
+    assert_raises(SystemCallError) do
+      new_pwd.chdir
+    end
+    assert_equal old_pwd, Pathname.pwd
+  end
+
   def test_make_dir
     with_deep_path do |dir|
       refute dir.directory?

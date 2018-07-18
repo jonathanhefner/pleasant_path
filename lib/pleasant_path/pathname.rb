@@ -180,6 +180,48 @@ class Pathname
     self.find.select(&:file?)
   end
 
+  # Changes the current working directory to the directory indicated by
+  # the Pathname.  If a block is given, it is called with the Pathname,
+  # and the original working directory is restored after the block
+  # exits.
+  #
+  # Returns the return value of the block, if one is given.  Otherwise,
+  # returns the Pathname.
+  #
+  # Raises an exception if the directory indicated by the Pathname does
+  # not exist.
+  #
+  # See also +Dir::chdir+.
+  #
+  # @example
+  #   FileUtils.mkdir("dir1")
+  #   FileUtils.mkdir("dir2")
+  #
+  #   Pathname.new("dir1").chdir  # == Pathname.new("dir1")
+  #   Pathname.pwd                # == Pathname.new("dir1")
+  #
+  #   Pathname.new("dir2").chdir{|path| "in #{path}" }  # == "in dir2"
+  #   Pathname.pwd                                      # == Pathname.new("dir1")
+  #
+  # @overload chdir()
+  #   @return [Pathname]
+  # @overload chdir()
+  #   @yieldparam path [Pathname]
+  #   @yieldreturn [Object] block_retval
+  #   @return [block_retval]
+  # @raise [SystemCallError]
+  #   if the directory does not exist
+  def chdir
+    if block_given?
+      Dir.chdir(self) do |dir|
+        yield dir.to_pathname
+      end
+    else
+      Dir.chdir(self)
+      self
+    end
+  end
+
   # Alias of +Pathname#mkpath+, but this method returns the Pathname.
   #
   # @example
