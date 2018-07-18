@@ -37,6 +37,22 @@ class Pathname
     self.dirname.basename
   end
 
+  # Returns the Pathname if +exist?+ returns true, otherwise returns
+  # nil.
+  #
+  # @example
+  #   FileUtils.mkdir("dir1")
+  #   FileUtils.touch("dir1/file1")
+  #
+  #   Pathname.new("dir1/file1").existence  # == Pathname.new("dir1/file1")
+  #
+  #   Pathname.new("dir1/file2").existence  # == nil
+  #
+  # @return [Pathname, nil]
+  def existence
+    self if self.exist?
+  end
+
   # Computes the longest path that the Pathname and +other+ have in
   # common.  See also {File.common_path}.
   #

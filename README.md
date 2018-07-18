@@ -40,6 +40,7 @@ The following methods are available:
   - [#dirs_r](http://www.rubydoc.info/gems/pleasant_path/Pathname:dirs_r)
   - [#edit_lines](http://www.rubydoc.info/gems/pleasant_path/Pathname:edit_lines)
   - [#edit_text](http://www.rubydoc.info/gems/pleasant_path/Pathname:edit_text)
+  - [#existence](http://www.rubydoc.info/gems/pleasant_path/Pathname:existence)
   - [#files](http://www.rubydoc.info/gems/pleasant_path/Pathname:files)
   - [#files_r](http://www.rubydoc.info/gems/pleasant_path/Pathname:files_r)
   - [#make_dir](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dir)

@@ -23,6 +23,22 @@ class PathnameTest < Minitest::Test
     assert_equal p.dirname.basename, p.parentname
   end
 
+  def test_existence_with_existent
+    with_deep_path(:dir) do |dir|
+      assert_equal dir, dir.existence
+
+      file = dir + "file"
+      FileUtils.touch(file)
+      assert_equal file, file.existence
+    end
+  end
+
+  def test_existence_with_nonexistent
+    with_deep_path do |path|
+      assert_nil path.existence
+    end
+  end
+
   def test_common_path
     [
       ["dir1/file1", "dir1/subdir1/file2"],
