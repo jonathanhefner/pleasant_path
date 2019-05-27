@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pathname
 
   # {https://ruby-doc.org/core/File/Constants.html#NULL +File::NULL+} as

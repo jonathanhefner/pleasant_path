@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Object
 
   # Dumps the Object as YAML, and writes the YAML to the specified file.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class File
 
   # Computes the longest path that every path in a list has in common.
@@ -15,7 +17,7 @@ class File
     i = 0
     last = -1
     while i < short.length && short[i] == long[i]
-      last = i if short[i] == "/".freeze
+      last = i if short[i] == "/"
       i += 1
     end
     short[0, i == short.length ? i : (last + 1)]

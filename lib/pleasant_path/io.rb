@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IO
 
   # Writes each object as a string plus a succeeding new line character

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pathname
 
   # Reads the contents of the file indicated by the Pathname, and parses
