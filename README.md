@@ -36,7 +36,6 @@ The following methods are available:
   - [#copy_into](http://www.rubydoc.info/gems/pleasant_path/Pathname:copy_into)
   - [#delete!](http://www.rubydoc.info/gems/pleasant_path/Pathname:delete%21)
   - [#dir?](http://www.rubydoc.info/gems/pleasant_path/Pathname:dir%3F)
-  - [#dir_empty?](http://www.rubydoc.info/gems/pleasant_path/Pathname:dir_empty%3F)
   - [#dirs](http://www.rubydoc.info/gems/pleasant_path/Pathname:dirs)
   - [#dirs_r](http://www.rubydoc.info/gems/pleasant_path/Pathname:dirs_r)
   - [#edit_lines](http://www.rubydoc.info/gems/pleasant_path/Pathname:edit_lines)

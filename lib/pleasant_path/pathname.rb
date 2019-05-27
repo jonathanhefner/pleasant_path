@@ -81,20 +81,12 @@ class Pathname
   # @return [Boolean]
   alias :dir? :directory?
 
-  # True if the directory indicated by the Pathname contains no other
-  # directories or files.
+  # @deprecated Use +Pathname#empty?+.
   #
-  # @example
-  #   FileUtils.mkdir("parent")
-  #   FileUtils.mkdir("parent/dir1")
-  #
-  #   Pathname.new("parent").dir_empty?       # == false
-  #   Pathname.new("parent/dir1").dir_empty?  # == true
+  # Alias of +Pathname#empty?+.
   #
   # @return [Boolean]
-  def dir_empty?
-    self.children(false).empty?
-  end
+  alias :dir_empty? :empty?
 
   # Returns the immediate (non-recursive) child directories of the
   # directory indicated by the Pathname.  Returned Pathnames are
