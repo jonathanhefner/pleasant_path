@@ -1,9 +1,9 @@
-class Array
+module Enumerable
 
-  # Writes the array as lines to the given file, and returns the array.
-  # End-of-line (EOL) characters are written after each line.  The file
-  # is overwritten if it already exists.  Any necessary parent
-  # directories are created if they do not exist.
+  # Writes the Enumerable as lines to the given file, and returns the
+  # Enumerable.  End-of-line (EOL) characters are written after each
+  # line.  The file is overwritten if it already exists.  Any necessary
+  # parent directories are created if they do not exist.
   #
   # @example
   #   [:one, :two].write_to_file("out.txt")  # == [:one, :two]
@@ -11,16 +11,16 @@ class Array
   #
   # @param file [String, Pathname]
   # @param eol [String]
-  # @return [Array]
+  # @return [Enumerable]
   def write_to_file(file, eol: $/)
     file.to_pathname.write_lines(self, eol: eol)
     self
   end
 
-  # Appends the array as lines to the given file, and returns the array.
-  # End-of-line (EOL) characters are written after each line.  The file
-  # is created if it does not exist.  Any necessary parent directories
-  # are created if they do not exist.
+  # Appends the Enumerable as lines to the given file, and returns the
+  # Enumerable.  End-of-line (EOL) characters are written after each
+  # line.  The file is created if it does not exist.  Any necessary
+  # parent directories are created if they do not exist.
   #
   # @example
   #   [:one, :two].append_to_file("out.txt")     # == [:one, :two]
@@ -30,7 +30,7 @@ class Array
   #
   # @param file [String, Pathname]
   # @param eol [String]
-  # @return [Array]
+  # @return [Enumerable]
   def append_to_file(file, eol: $/)
     file.to_pathname.append_lines(self, eol: eol)
     self

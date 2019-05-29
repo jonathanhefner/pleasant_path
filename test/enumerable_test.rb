@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ArrayTest < Minitest::Test
+class EnumerableTest < Minitest::Test
 
   def test_write_to_file
     lines = ["line 1", "line 2"]
