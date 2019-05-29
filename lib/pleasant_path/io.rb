@@ -2,8 +2,8 @@
 
 class IO
 
-  # Writes each object as a string plus a succeeding new line character
-  # (<code>$/</code>) to the IO.  Returns the objects unmodified.
+  # Writes each object as a string plus end-of-line (EOL) characters to
+  # the IO.  Returns the objects unmodified.
   #
   # @example
   #   # NOTE File inherits from IO
@@ -14,21 +14,22 @@ class IO
   #   File.read("out.txt")              # == "one\ntwo\n"
   #
   # @param lines [Enumerable<#to_s>]
+  # @param eol [String]
   # @return [Enumerable<#to_s>]
-  def write_lines(lines)
+  def write_lines(lines, eol: $/)
     lines.each do |line|
       self.write(line)
-      self.write($/)
+      self.write(eol)
     end
     self.write("") # write something even if no lines
     lines
   end
 
-  # Reads from the IO all lines, and returns them as an array,
-  # end-of-line characters excluded.
+  # Reads from the IO all lines, and returns them as an array, with all
+  # end-of-line (EOL) characters stripped.
   #
   # (Not to be confused with +IO#readlines+ which retains end-of-line
-  # characters in every string it returns.)
+  # (EOL) characters in every string it returns.)
   #
   # @example
   #   # NOTE File inherits from IO
@@ -38,9 +39,10 @@ class IO
   #     file.read_lines              # == ["one", "two"]
   #   end                            # == ["one", "two"]
   #
+  # @param eol [String]
   # @return [Array<String>]
-  def read_lines
-    self.readlines(chomp: true)
+  def read_lines(eol: $/)
+    self.readlines(eol, chomp: true)
   end
 
 end

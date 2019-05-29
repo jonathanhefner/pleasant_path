@@ -3,26 +3,26 @@ require "test_helper"
 class ArrayTest < Minitest::Test
 
   def test_write_to_file
-    text = "line 1\nline 2\n"
-    lines = text.split("\n")
+    lines = ["line 1", "line 2"]
 
-    with_tmp_file(false) do |file|
-      assert_equal lines, lines.write_to_file(file)
-      assert_equal text, file.read
+    with_various_eol(lines) do |text, options|
+      with_tmp_file(false) do |file|
+        assert_equal lines, lines.write_to_file(file, **options)
+        assert_equal text, file.read
+      end
     end
   end
 
   def test_append_to_file
-    text1 = "line 1\nline 2\n"
-    text2 = "line 3\nline 4\n"
-    lines1 = text1.split("\n")
-    lines2 = text2.split("\n")
+    lines = ["line 1", "line 2"]
 
-    with_tmp_file(false) do |file|
-      assert_equal lines1, lines1.append_to_file(file)
-      assert_equal text1, file.read
-      assert_equal lines2, lines2.append_to_file(file)
-      assert_equal (text1 + text2), file.read
+    with_various_eol(lines) do |text, options|
+      with_tmp_file(false) do |file|
+        assert_equal lines, lines.append_to_file(file, **options)
+        assert_equal text, file.read
+        assert_equal lines, lines.append_to_file(file, **options)
+        assert_equal (text + text), file.read
+      end
     end
   end
 

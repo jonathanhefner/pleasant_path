@@ -14,14 +14,15 @@ class PleasantPath::FileTest < Minitest::Test
   end
 
   def test_edit_lines
-    text = "AAA\nBBB\nBBB\nAAA\nCCC\n"
-    lines = text.split("\n")
+    lines = ["AAA", "BBB", "BBB", "AAA", "CCC"]
 
     with_tmp_file do |file|
-      file.write(text)
+      with_various_eol(lines) do |text, options|
+        file.write(text)
 
-      assert_equal lines.uniq, File.edit_lines(file, &:uniq)
-      assert_equal lines.uniq, file.read.split("\n")
+        assert_equal lines.uniq, File.edit_lines(file, **options, &:uniq)
+        assert_equal lines.uniq, file.read.split(options[:eol] || $/)
+      end
     end
   end
 

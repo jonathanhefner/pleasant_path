@@ -44,4 +44,18 @@ class Minitest::Test
     end
   end
 
+  def with_various_eol(lines)
+    original_eol = $/
+    alternative_eol = original_eol == "\n" ? "\r\n" : "\n"
+
+    yield lines.map{|line| line + original_eol }.join, {}
+
+    $/ = alternative_eol
+    yield lines.map{|line| line + alternative_eol }.join, {}
+
+    yield lines.map{|line| line + original_eol }.join, { eol: original_eol }
+  ensure
+    $/ = original_eol
+  end
+
 end

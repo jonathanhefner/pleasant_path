@@ -492,10 +492,10 @@ class Pathname
     self
   end
 
-  # Writes each object as a string plus a succeeding new line character
-  # (<code>$/</code>) to the file indicated by the Pathname.  Returns
-  # the Pathname.  The file is overwritten if it already exists.  Any
-  # necessary parent directories are created if they do not exist.
+  # Writes each object as a string plus end-of-line (EOL) characters to
+  # the file indicated by the Pathname.  Returns the Pathname.  The file
+  # is overwritten if it already exists.  Any necessary parent
+  # directories are created if they do not exist.
   #
   # @example
   #   File.exist?("path/to/file")  # false
@@ -506,16 +506,17 @@ class Pathname
   #   File.read("path/to/file")    # == "one\ntwo\n"
   #
   # @param lines [Enumerable<#to_s>]
+  # @param eol [String]
   # @return [Pathname]
-  def write_lines(lines)
-    self.make_dirname.open("w"){|f| f.write_lines(lines) }
+  def write_lines(lines, eol: $/)
+    self.make_dirname.open("w"){|f| f.write_lines(lines, eol: eol) }
     self
   end
 
-  # Appends each object as a string plus a succeeding new line character
-  # (<code>$/</code>) to the file indicated by the Pathname.  Returns
-  # the Pathname.  The file is created if it does not exist.  Any
-  # necessary parent directories are created if they do not exist.
+  # Appends each object as a string plus end-of-line (EOL) characters to
+  # the file indicated by the Pathname.  Returns the Pathname.  The file
+  # is created if it does not exist.  Any necessary parent directories
+  # are created if they do not exist.
   #
   # @example
   #   File.exist?("path/to/file")  # false
@@ -526,9 +527,10 @@ class Pathname
   #   File.read("path/to/file")    # == "one\ntwo\nthree\nfour\n"
   #
   # @param lines [Enumerable<#to_s>]
+  # @param eol [String]
   # @return [Pathname]
-  def append_lines(lines)
-    self.make_dirname.open("a"){|f| f.write_lines(lines) }
+  def append_lines(lines, eol: $/)
+    self.make_dirname.open("a"){|f| f.write_lines(lines, eol: eol) }
     self
   end
 
@@ -538,20 +540,21 @@ class Pathname
   alias :read_text :read
 
   # Reads from the file indicated by the Pathname all lines, and returns
-  # them as an array, end-of-line characters excluded.  See also
-  # {IO#read_lines}.
+  # them as an array, with all end-of-line (EOL) characters stripped.
+  # See also {IO#read_lines}.
   #
   # (Not to be confused with +Pathname#readlines+ which retains
-  # end-of-line characters in every string it returns.)
+  # end-of-line (EOL) characters in every string it returns.)
   #
   # @example
   #   File.read("path/to/file")                # == "one\ntwo\n"
   #
   #   Pathname.new("path/to/file").read_lines  # == ["one", "two"]
   #
+  # @param eol [String]
   # @return [Array<String>]
-  def read_lines
-    self.open("r"){|f| f.read_lines }
+  def read_lines(eol: $/)
+    self.open("r"){|f| f.read_lines(eol: eol) }
   end
 
   # Reads the contents of the file indicated by the Pathname into memory
@@ -582,10 +585,9 @@ class Pathname
   # Reads the contents of the file indicated by the Pathname into memory
   # as an array of lines, and yields the array to the given block for
   # editing.  Writes the return value of the block back to the file,
-  # overwriting previous contents.  The <code>$/</code> global string
-  # specifies what end-of-line characters to use for both reading and
-  # writing.  Returns the array of lines that comprises the file's new
-  # contents.  See also {File.edit_lines}.
+  # overwriting previous contents.  End-of-line (EOL) characters are
+  # stripped when reading, and appended after each line when writing.
+  # Returns the return value of the block.  See also {File.edit_lines}.
   #
   # @example dedup lines of file
   #   File.read("entries.txt")  # == "AAA\nBBB\nBBB\nCCC\nAAA\n"
@@ -595,12 +597,13 @@ class Pathname
   #
   #   File.read("entries.txt")  # == "AAA\nBBB\nCCC\n"
   #
+  # @param eol [String]
   # @yield [lines] edits current file contents
   # @yieldparam lines [Array<String>] current contents
   # @yieldreturn [Array<String>] new contents
   # @return [Array<String>]
-  def edit_lines(&block)
-    File.edit_lines(self, &block)
+  def edit_lines(eol: $/, &block)
+    File.edit_lines(self, eol: eol, &block)
   end
 
   # Appends the contents of another file to the destination indicated by

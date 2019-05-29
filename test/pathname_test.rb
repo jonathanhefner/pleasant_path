@@ -277,26 +277,26 @@ class PathnameTest < Minitest::Test
   end
 
   def test_write_lines
-    text = "line 1\nline 2\n"
-    lines = text.split("\n")
+    lines = ["line 1", "line 2"]
 
-    with_tmp_file(false) do |file|
-      assert_equal file, file.write_lines(lines)
-      assert_equal text, file.read
+    with_various_eol(lines) do |text, options|
+      with_tmp_file(false) do |file|
+        assert_equal file, file.write_lines(lines, **options)
+        assert_equal text, file.read
+      end
     end
   end
 
   def test_append_lines
-    text1 = "line 1\nline 2\n"
-    text2 = "line 3\nline 4\n"
-    lines1 = text1.split("\n")
-    lines2 = text2.split("\n")
+    lines = ["line 1", "line 2"]
 
-    with_tmp_file(false) do |file|
-      assert_equal file, file.append_lines(lines1)
-      assert_equal text1, file.read
-      assert_equal file, file.append_lines(lines2)
-      assert_equal (text1 + text2), file.read
+    with_various_eol(lines) do |text, options|
+      with_tmp_file(false) do |file|
+        assert_equal file, file.append_lines(lines, **options)
+        assert_equal text, file.read
+        assert_equal file, file.append_lines(lines, **options)
+        assert_equal (text + text), file.read
+      end
     end
   end
 
@@ -305,13 +305,14 @@ class PathnameTest < Minitest::Test
   end
 
   def test_read_lines
-    text = "line 1\nline 2\n"
-    lines = text.split("\n")
+    lines = ["line 1", "line 2"]
 
     with_tmp_file do |file|
-      file.write(text)
+      with_various_eol(lines) do |text, options|
+        file.write(text)
 
-      assert_equal lines, file.read_lines
+        assert_equal lines, file.read_lines(**options)
+      end
     end
   end
 
@@ -327,14 +328,15 @@ class PathnameTest < Minitest::Test
   end
 
   def test_edit_lines
-    text = "AAA\nBBB\nBBB\nAAA\nCCC\n"
-    lines = text.split("\n")
+    lines = ["AAA", "BBB", "BBB", "AAA", "CCC"]
 
     with_tmp_file do |file|
-      file.write(text)
+      with_various_eol(lines) do |text, options|
+        file.write(text)
 
-      assert_equal lines.uniq, file.edit_lines(&:uniq)
-      assert_equal lines.uniq, file.read.split("\n")
+        assert_equal lines.uniq, file.edit_lines(**options, &:uniq)
+        assert_equal lines.uniq, file.read.split(options[:eol] || $/)
+      end
     end
   end
 

@@ -57,9 +57,9 @@ class File
   # Reads from the specified file its contents as an array of lines, and
   # yields the array to the given block for editing.  Writes the return
   # value of the block back to the file, overwriting previous contents.
-  # The <code>$/</code> global string specifies what end-of-line
-  # characters to use for both reading and writing.  Returns the array
-  # of lines that comprises the file's new contents.
+  # End-of-line (EOL) characters are stripped when reading, and appended
+  # after each line when writing.  Returns the return value of the
+  # block.
   #
   # @example dedup lines of file
   #   File.read("entries.txt")  # == "AAA\nBBB\nBBB\nCCC\nAAA\n"
@@ -70,15 +70,16 @@ class File
   #   File.read("entries.txt")  # == "AAA\nBBB\nCCC\n"
   #
   # @param filename [String, Pathname]
+  # @param eol [String]
   # @yield [lines] edits current file contents
   # @yieldparam lines [Array<String>] current contents
   # @yieldreturn [Array<String>] new contents
   # @return [Array<String>]
-  def self.edit_lines(filename)
+  def self.edit_lines(filename, eol: $/)
     self.open(filename, "r+") do |f|
-      lines = yield f.read_lines
+      lines = yield f.read_lines(eol: eol)
       f.seek(0, IO::SEEK_SET)
-      f.write_lines(lines)
+      f.write_lines(lines, eol: eol)
       f.truncate(f.pos)
       lines
     end
