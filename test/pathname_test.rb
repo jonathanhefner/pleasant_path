@@ -7,134 +7,110 @@ class PathnameTest < Minitest::Test
   end
 
   def test_to_pathname
-    p = Pathname.new("path/to/file")
-    assert_same p, p.to_pathname
+    path = Pathname.new("path/to/file")
+
+    assert_same path, path.to_pathname
   end
 
   def test_op_caret
-    p1 = Pathname.new("path/to/file1")
-    p2 = Pathname.new("path/to/file2")
+    dirname = Pathname.new("path/to")
+    path = dirname / "file1"
 
-    assert_equal p2, (p1 ^ "file2")
+    assert_equal (dirname / "file2"), (path ^ "file2")
   end
 
   def test_parentname
-    p = Pathname.new("path/to/file")
-    assert_equal p.dirname.basename, p.parentname
+    dirname = Pathname.new("path/to")
+    path = dirname / "file"
+
+    assert_equal dirname.basename, path.parentname
   end
 
-  def test_existence_with_existent
-    with_deep_path(:dir) do |dir|
+  def test_existence
+    with_tmp_dir do |dir|
       assert_equal dir, dir.existence
 
-      file = dir + "file"
+      file = dir / "file"
+      assert_nil file.existence
+
       FileUtils.touch(file)
       assert_equal file, file.existence
     end
   end
 
-  def test_existence_with_nonexistent
-    with_deep_path do |path|
-      assert_nil path.existence
-    end
-  end
-
   def test_common_path
-    [
-      ["dir1/file1", "dir1/subdir1/file2"],
-      ["dir1/subdir1/file2", "dir1/subdir1/file3"],
-      ["dir1/subdir1/file3", "dir2/file4"],
-    ].each do |paths|
-      result = paths.map{|p| Pathname.new(p) }.reduce(&:common_path)
+    [ ["aaa/bbb/xxx", "aaa/bbb/zzz"],
+      ["aaa/bbb/xxx", "aaa/zzz"],
+      ["aaa/bbb/xxx", "aaa"],
+      ["aaa/bbb/xxx", "zzz"],
+      ["aaa/bbb", "bbb/aaa"],
+    ].each do |path1, path2|
+      expected = Pathname.new(File.common_path([path1, path2]))
 
-      assert_instance_of Pathname, result
-
-      assert paths.all?{|p| p.start_with?(result.to_s) }
-
-      refute paths.all?{|p| p[result.to_s.length] == "/" }
-
-      depth = result.to_s.split("/").length
-      alternatives = paths.map{|p| p.split("/").take(depth + 1).join("/") } - [result.to_s]
-
-      refute alternatives.any?{|a| paths.all?{|p| p.start_with?(a) } }
+      assert_equal expected, Pathname.new(path1).common_path(path2)
     end
   end
 
-  def test_dir?
-    file = Pathname.new(__FILE__)
-
-    refute file.dir?
-    assert file.dirname.dir?
+  def test_dir_predicate_aliases_directory_predicate
+    assert_equal :directory?, Pathname.new("/").method(:dir?).original_name
   end
 
-  def test_dir_empty?
-    with_deep_path(:dir) do |path|
-      assert path.dir_empty?
-      refute path.dirname.dir_empty?
-    end
+  def test_dir_empty_predicate_aliases_empty_predicate
+    assert_equal :empty?, Pathname.new("/").method(:dir_empty?).original_name
   end
 
   def test_dirs
-    with_deep_path do |path|
-      dirs = make_dirs(path, "d1", "d2")
-      make_files(path, "f1", "d2/d3/f2")
+    with_tmp_tree do |base, dirs, files|
+      child_dirs = dirs.select{|dir| dir.dirname == base }
 
-      assert_equal dirs.sort, path.dirs.sort
+      assert_equal child_dirs.sort, base.dirs.sort
     end
   end
 
   def test_dirs_r
-    with_deep_path do |path|
-      dirs = make_dirs(path, "d1", "d2", "d2/d3")
-      make_files(path, "f1", "d2/d3/f2")
-
-      assert_equal dirs.sort, path.dirs_r.sort
+    with_tmp_tree do |base, dirs, files|
+      assert_equal dirs.sort, base.dirs_r.sort
     end
   end
 
   def test_files
-    with_deep_path do |path|
-      files = make_files(path, "f1", "f2")
-      make_files(path, "d1/f3")
+    with_tmp_tree do |base, dirs, files|
+      child_files = files.select{|file| file.dirname == base }
 
-      assert_equal files.sort, path.files.sort
+      assert_equal child_files.sort, base.files.sort
     end
   end
 
   def test_files_r
-    with_deep_path do |path|
-      files = make_files(path, "f1", "f2", "d1/d2/f3")
-
-      assert_equal files.sort, path.files_r.sort
+    with_tmp_tree do |base, dirs, files|
+      assert_equal files.sort, base.files_r.sort
     end
   end
 
   def test_chdir_with_block
     old_pwd = Pathname.pwd
     new_pwd = old_pwd.dirname
+    retval = new_pwd.chdir{|path| ["expected", path] }
 
-    retval = new_pwd.chdir do |path|
-      assert_equal new_pwd, path
-      "expected"
-    end
-    assert_equal "expected", retval
+    assert_equal "expected", retval[0]
+    assert_equal new_pwd, retval[1]
     assert_equal old_pwd, Pathname.pwd
   end
 
   def test_chdir_without_block
     old_pwd = Pathname.pwd
     new_pwd = old_pwd.dirname
-
     retval = new_pwd.chdir
+
     assert_equal new_pwd, retval
     assert_equal new_pwd, Pathname.pwd
-
-    Dir.chdir(old_pwd) # restore
+  ensure
+    Dir.chdir(old_pwd)
   end
 
   def test_chdir_with_nonexistent_dir
     old_pwd = Pathname.pwd
-    new_pwd = old_pwd + "non/exist/ent"
+    new_pwd = old_pwd / "non/exist/ent"
 
     assert_raises(SystemCallError) do
       new_pwd.chdir
@@ -143,50 +119,55 @@ class PathnameTest < Minitest::Test
   end
 
   def test_make_dir
-    with_deep_path do |dir|
-      refute dir.directory?
+    with_tmp_dir(false) do |dir|
       assert_equal dir, dir.make_dir
       assert dir.directory?
     end
   end
 
+  def test_make_dir_with_existent_file
+    assert_raises(SystemCallError) do
+      Pathname.new(__FILE__).make_dir
+    end
+  end
+
   def test_make_dirname
-    with_deep_path do |file|
-      refute file.dirname.directory?
+    with_tmp_dir(false) do |dir|
+      file = dir / "file"
+
       assert_equal file, file.make_dirname
-      assert file.dirname.directory?
+      assert dir.directory?
       refute file.exist?
     end
   end
 
+  def test_make_dirname_with_existent_file
+    assert_raises(SystemCallError) do
+      (Pathname.new(__FILE__) / "dir").make_dirname
+    end
+  end
+
   def test_touch_file
-    with_deep_path do |file|
-      refute file.file?
+    with_tmp_file(false) do |file|
       assert_equal file, file.touch_file
       assert file.file?
     end
   end
 
-  def test_delete!
-    with_deep_path do |path|
-      assert_equal path, path.delete! # doesn't exist, but nothing raised
+  def test_delete_bang
+    with_tmp_file do |file|
+      dir = file.dirname
 
-      path.mkpath
-      path.delete!
-      refute path.exist?
-      assert path.dirname.exist?
-
-      path.mkpath
-      path.dirname.delete!
-      refute path.dirname.exist?
+      assert_equal dir, dir.delete!
+      refute dir.exist?
+      assert_equal dir, dir.delete! # doesn't exist, but nothing raised
     end
   end
 
   def test_move
-    with_deep_path(:file) do |source|
+    with_tmp_file do |source|
       destination = source.dirname / "destination/dir/file"
 
-      refute destination.exist?
       assert_equal destination, source.move(destination)
       assert destination.exist?
       refute source.exist?
@@ -194,10 +175,9 @@ class PathnameTest < Minitest::Test
   end
 
   def test_move_into
-    with_deep_path(:file) do |source|
+    with_tmp_file do |source|
       destination = source.dirname / "destination/dir" / source.basename
 
-      refute destination.exist?
       assert_equal destination, source.move_into(destination.dirname)
       assert destination.exist?
       refute source.exist?
@@ -205,10 +185,9 @@ class PathnameTest < Minitest::Test
   end
 
   def test_copy
-    with_deep_path(:file) do |source|
+    with_tmp_file do |source|
       destination = source.dirname / "destination/dir/file"
 
-      refute destination.exist?
       assert_equal destination, source.copy(destination)
       assert destination.exist?
       assert source.exist?
@@ -216,10 +195,9 @@ class PathnameTest < Minitest::Test
   end
 
   def test_copy_into
-    with_deep_path(:file) do |source|
+    with_tmp_file do |source|
       destination = source.dirname / "destination/dir" / source.basename
 
-      refute destination.exist?
       assert_equal destination, source.copy_into(destination.dirname)
       assert destination.exist?
       assert source.exist?
@@ -227,10 +205,9 @@ class PathnameTest < Minitest::Test
   end
 
   def test_rename_basename
-    with_deep_path(:file) do |old_path|
+    with_tmp_file do |old_path|
       new_path = old_path.dirname / "renamed"
 
-      refute new_path.exist?
       assert_equal new_path, old_path.rename_basename(new_path.basename)
       assert new_path.exist?
       refute old_path.exist?
@@ -238,7 +215,7 @@ class PathnameTest < Minitest::Test
   end
 
   def test_rename_basename_with_different_case
-    with_deep_path(:file) do |old_path|
+    with_tmp_file do |old_path|
       new_path = old_path.dirname / old_path.basename.to_s.swapcase
 
       assert_equal new_path, old_path.rename_basename(new_path.basename)
@@ -247,16 +224,15 @@ class PathnameTest < Minitest::Test
   end
 
   def test_rename_extname
-    [
-      [".a", ".b"],
-      ["", ".b"],
-      [".a", ""],
-    ].each do |old_extname, new_extname|
-      with_deep_path(:dir) do |path|
-        old_file = (path / "file#{old_extname}").tap{|f| FileUtils.touch(f) }
-        new_file = (path / "file#{new_extname}")
+    with_tmp_dir do |dir|
+      [ [".a", ".b"],
+        [".a", ".A"],
+        [".a", ""],
+        ["", ".a"],
+      ].each do |old_extname, new_extname|
+        old_file = (dir / "file#{old_extname}").tap{|file| FileUtils.touch(file) }
+        new_file = (dir / "file#{new_extname}")
 
-        refute new_file.exist?
         assert_equal new_file, old_file.rename_extname(new_extname)
         assert new_file.exist?
         refute old_file.exist?
@@ -264,37 +240,25 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_rename_extname_missing_dot
-    [
-      [".a", "b"],
-      ["", "b"],
-    ].each do |old_extname, new_extname|
-      with_deep_path(:dir) do |path|
-        old_file = (path / "file#{old_extname}").tap{|f| FileUtils.touch(f) }
-        new_file = (path / "file.#{new_extname}")
+  def test_rename_extname_without_dot
+    with_tmp_dir do |dir|
+      [ [".a", "b"],
+        ["", "b"],
+      ].each do |old_extname, new_extname|
+        old_file = (dir / "file#{old_extname}").tap{|file| FileUtils.touch(file) }
+        new_file = (dir / "file.#{new_extname}")
 
-        refute new_file.exist?
         assert_equal new_file, old_file.rename_extname(new_extname)
         assert new_file.exist?
         refute old_file.exist?
       end
-    end
-  end
-
-  def test_rename_extname_with_different_case
-    with_deep_path(:dir) do |path|
-      old_file = (path / "file.ext").tap{|f| FileUtils.touch(f) }
-      new_file = (path / "file.EXT")
-
-      assert_equal new_file, old_file.rename_extname(new_file.extname)
-      assert new_file.exist?
     end
   end
 
   def test_write_text
     text = "line 1\nline 2\n"
 
-    with_deep_path do |file|
+    with_tmp_file(false) do |file|
       assert_equal file, file.write_text(text)
       assert_equal text, file.read
     end
@@ -304,7 +268,7 @@ class PathnameTest < Minitest::Test
     text1 = "line 1\nline 2\n"
     text2 = "line 3\nline 4\n"
 
-    with_deep_path do |file|
+    with_tmp_file(false) do |file|
       assert_equal file, file.append_text(text1)
       assert_equal text1, file.read
       assert_equal file, file.append_text(text2)
@@ -316,7 +280,7 @@ class PathnameTest < Minitest::Test
     text = "line 1\nline 2\n"
     lines = text.split("\n")
 
-    with_deep_path do |file|
+    with_tmp_file(false) do |file|
       assert_equal file, file.write_lines(lines)
       assert_equal text, file.read
     end
@@ -328,7 +292,7 @@ class PathnameTest < Minitest::Test
     lines1 = text1.split("\n")
     lines2 = text2.split("\n")
 
-    with_deep_path do |file|
+    with_tmp_file(false) do |file|
       assert_equal file, file.append_lines(lines1)
       assert_equal text1, file.read
       assert_equal file, file.append_lines(lines2)
@@ -336,36 +300,41 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_read_text
-    file = Pathname.new(__FILE__)
-    assert_equal file.read, file.read_text
+  def test_read_text_aliases_read
+    assert_equal :read, Pathname.new("/").method(:read_text).original_name
   end
 
   def test_read_lines
     text = "line 1\nline 2\n"
     lines = text.split("\n")
 
-    with_temp_file(text) do |file|
+    with_tmp_file do |file|
+      file.write(text)
+
       assert_equal lines, file.read_lines
     end
   end
 
   def test_edit_text
-    text = "line 1\nline 2\n"
+    text = "  abcdef  "
 
-    with_temp_file(text) do |file|
-      assert_equal text.reverse, file.edit_text(&:reverse)
-      assert_equal text.reverse, file.read
+    with_tmp_file do |file|
+      file.write(text)
+
+      assert_equal text.strip, file.edit_text(&:strip)
+      assert_equal text.strip, file.read
     end
   end
 
   def test_edit_lines
-    text = "line 1\nline 2\n"
+    text = "AAA\nBBB\nBBB\nAAA\nCCC\n"
     lines = text.split("\n")
 
-    with_temp_file(text) do |file|
-      assert_equal lines.reverse, file.edit_lines(&:reverse)
-      assert_equal lines.reverse, file.read.split("\n")
+    with_tmp_file do |file|
+      file.write(text)
+
+      assert_equal lines.uniq, file.edit_lines(&:uniq)
+      assert_equal lines.uniq, file.read.split("\n")
     end
   end
 
@@ -373,25 +342,28 @@ class PathnameTest < Minitest::Test
     text1 = "line 1\nline 2\n"
     text2 = "line 3\nline 4\n"
 
-    with_temp_file(text1) do |file|
-      appendix = (file.dirname / "appendix").tap{|f| f.write(text2) }
+    with_tmp_file do |file1|
+      file2 = file1.dirname / "file2"
+      file1.write(text1)
+      file2.write(text2)
 
-      assert_equal file, file.append_file(appendix)
-      assert_equal (text1 + text2), file.read
+      assert_equal file1, file1.append_file(file2)
+      assert_equal (text1 + text2), file1.read
     end
   end
 
 
   private
 
-  def make_dirs(path, *dirs)
-    dirs.map{|d| path / d }.each(&:mkpath)
-  end
+  def with_tmp_tree
+    Dir.mktmpdir do |tmp|
+      base = Pathname.new(tmp)
+      dirs = ["d1", "d2", "d2/d3"].map{|dir| base / dir }.
+        each(&:mkpath)
+      files = ([base] + dirs).flat_map{|dir| [dir / "f1", dir / "f2"] }.
+        each{|file| FileUtils.touch(file) }
 
-  def make_files(path, *files)
-    files.map{|f| path / f }.each do |f|
-      f.dirname.mkpath
-      FileUtils.touch(f)
+      yield base, dirs, files
     end
   end
 

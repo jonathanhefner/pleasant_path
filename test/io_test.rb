@@ -6,8 +6,8 @@ class IOTest < Minitest::Test
     text = "line 1\nline 2\n"
     lines = text.split("\n")
 
-    with_temp_file do |file|
-      assert_equal lines, file.open("w"){|f| f.write_lines(lines) }
+    with_tmp_file do |file|
+      assert_equal lines, file.open("w"){|io| io.write_lines(lines) }
       assert_equal text, file.read
     end
   end
@@ -16,8 +16,10 @@ class IOTest < Minitest::Test
     text = "line 1\nline 2\n"
     lines = text.split("\n")
 
-    with_temp_file(text) do |file|
-      assert_equal lines, file.open("r"){|f| f.read_lines }
+    with_tmp_file do |file|
+      file.write(text)
+
+      assert_equal lines, file.open("r"){|io| io.read_lines }
     end
   end
 

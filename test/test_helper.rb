@@ -25,28 +25,22 @@ class Minitest::Test
     { "top_left" => Point.new(1, 2), "bottom_right" => Point.new(3, 4) },
   ].freeze
 
-  def with_temp_file(contents = nil)
+  def with_tmp_dir(make = true)
     Dir.mktmpdir do |tmp|
-      file = Pathname.new(tmp) / "file"
-      file.write(contents) if contents
-      yield file
+      dir = Pathname.new(tmp) / "deeply/nested/dir"
+      dir.mkpath if make
+      yield dir
     end
   end
 
-  def with_deep_path(path_type = nil)
+  def with_tmp_file(make = true)
     Dir.mktmpdir do |tmp|
-      path = Pathname.new(tmp) / "deeply/nested/thing"
-
-      if path_type == :dir
-        path.mkpath
-      elsif path_type == :file
-        path.dirname.mkpath
-        FileUtils.touch(path)
-      elsif path_type
-        raise "Unrecognized path_type: #{path_type}"
+      file = Pathname.new(tmp) / "deeply/nested/file.ext"
+      if make
+        file.dirname.mkpath
+        FileUtils.touch(file)
       end
-
-      yield path
+      yield file
     end
   end
 

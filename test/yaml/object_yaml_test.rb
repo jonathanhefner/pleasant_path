@@ -5,9 +5,9 @@ class ObjectYamlTest < Minitest::Test
 
   def test_write_to_yaml
     SERIALIZABLE_DATA.each do |data|
-      with_deep_path do |file|
+      with_tmp_file(false) do |file|
         assert_equal data, data.write_to_yaml(file)
-        assert_equal data, file.open("r"){|f| YAML.load(f) }
+        assert_equal data, YAML.load(file.read)
       end
     end
   end
