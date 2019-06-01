@@ -2,12 +2,12 @@
 
 class File
 
-  # Computes the longest path that every path in a list has in common.
+  # Returns the longest path that all of +paths+ have in common.
   #
   # @example
   #   File.common_path(["a/b/x", "a/b/y", "a/b/z"])  # == "a/b/"
-  #   File.common_path(["a/b/x", "a/b/y", "a/z"])    # == "a/"
-  #   File.common_path(["a/b/x", "a/b/y", "a"])      # == "a"
+  #   File.common_path(["a/bx", "a/by", "a/bz"])     # == "a/"
+  #   File.common_path(["a/b/x", "a/b", "a"])        # == "a"
   #
   # @param paths [Enumerable<String>]
   # @return [String]
@@ -23,12 +23,12 @@ class File
     short[0, i == short.length ? i : (last + 1)]
   end
 
-  # Reads from the specified file its contents as a string, and yields
-  # the string to the given block for editing.  Writes the return value
-  # of the block back to the file, overwriting previous contents.
-  # Returns the file's new contents.
+  # Reads the entire contents of the file indicated by +filename+ as a
+  # string, and yields that string to the given block for editing.
+  # Writes the return value of the block back to the file, overwriting
+  # previous contents.  Returns the return value of the block.
   #
-  # @example update JSON data file
+  # @example Update JSON data file
   #   File.read("data.json")  # == '{"nested":{"key":"value"}}'
   #
   #   File.edit_text("data.json") do |text|
@@ -40,9 +40,9 @@ class File
   #   File.read("data.json")  # == '{"nested":{"key":"new value"}}'
   #
   # @param filename [String, Pathname]
-  # @yield [text] edits current file contents
-  # @yieldparam text [String] current contents
-  # @yieldreturn [String] new contents
+  # @yield [text]
+  # @yieldparam text [String]
+  # @yieldreturn [String]
   # @return [String]
   def self.edit_text(filename)
     self.open(filename, "r+") do |f|
@@ -54,14 +54,14 @@ class File
     end
   end
 
-  # Reads from the specified file its contents as an array of lines, and
-  # yields the array to the given block for editing.  Writes the return
-  # value of the block back to the file, overwriting previous contents.
-  # End-of-line (EOL) characters are stripped when reading, and appended
-  # after each line when writing.  Returns the return value of the
-  # block.
+  # Reads the entire contents of the file indicated by +filename+ as an
+  # array of lines, and yields that array to the given block for
+  # editing.  Writes the return value of the block back to the file,
+  # overwriting previous contents.  End-of-line (EOL) characters are
+  # stripped when reading, and appended after each line when writing.
+  # Returns the return value of the block.
   #
-  # @example dedup lines of file
+  # @example Dedup lines of file
   #   File.read("entries.txt")  # == "AAA\nBBB\nBBB\nCCC\nAAA\n"
   #
   #   File.edit_lines("entries.txt", &:uniq)
@@ -71,9 +71,9 @@ class File
   #
   # @param filename [String, Pathname]
   # @param eol [String]
-  # @yield [lines] edits current file contents
-  # @yieldparam lines [Array<String>] current contents
-  # @yieldreturn [Array<String>] new contents
+  # @yield [lines]
+  # @yieldparam lines [Array<String>]
+  # @yieldreturn [Array<String>]
   # @return [Array<String>]
   def self.edit_lines(filename, eol: $/)
     self.open(filename, "r+") do |f|

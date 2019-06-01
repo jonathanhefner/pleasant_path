@@ -2,23 +2,24 @@
 
 class Pathname
 
-  # {https://ruby-doc.org/core/File/Constants.html#NULL +File::NULL+} as
-  # a Pathname.  On POSIX systems, this should be equivalent to
+  # {https://docs.ruby-lang.org/en/trunk/File/File/Constants.html#NULL +File::NULL+}
+  # as a Pathname.  On POSIX systems, this should be equivalent to
   # +Pathname.new("/dev/null")+.
   NULL = Pathname.new(File::NULL)
 
   # Returns the Pathname unmodified.  Exists for parity with
   # {String#to_pathname}.
   #
-  # @return [Pathname]
+  # @return [self]
   def to_pathname
     self
   end
 
-  # Joins the parent (+dirname+) of the Pathname with the argument.  The
-  # mnemonic for this operator is that the resultant path goes up one
-  # directory level from the original, then goes down to the directory
-  # specified by the argument.
+  # Joins the Pathname +dirname+ with the given +sibling+.
+  #
+  # The mnemonic for this operator is that the result is formed by going
+  # up one directory level from the original path, then going back down
+  # to +sibling+.
   #
   # @example
   #   Pathname.new("path/to/file1") ^ "file2"  # == Pathname.new("path/to/file2")
@@ -29,7 +30,7 @@ class Pathname
     self.dirname / sibling
   end
 
-  # Returns the +basename+ of the Pathname's parent directory.
+  # Returns the +basename+ of the parent directory (+dirname+).
   #
   # @example
   #   Pathname.new("path/to/file").parentname  # == Pathname.new("to")
@@ -50,13 +51,15 @@ class Pathname
   #
   #   Pathname.new("dir1/file2").existence  # == nil
   #
-  # @return [Pathname, nil]
+  # @return [self, nil]
   def existence
     self if self.exist?
   end
 
-  # Computes the longest path that the Pathname and +other+ have in
-  # common.  See also {File.common_path}.
+  # Returns the longest path that the Pathname and +other+ have in
+  # common.
+  #
+  # @see File.common_path
   #
   # @example
   #   f1 = Pathname.new("dir1/file1")
@@ -88,13 +91,14 @@ class Pathname
   # @return [Boolean]
   alias :dir_empty? :empty?
 
-  # Returns the immediate (non-recursive) child directories of the
-  # directory indicated by the Pathname.  Returned Pathnames are
-  # prefixed by the original Pathname.
+  # Returns the immediate child directories of the directory indicated
+  # by the Pathname.  Returned Pathnames are prefixed by the original
+  # Pathname.
   #
   # @example
   #   FileUtils.mkdir("parent")
   #   FileUtils.mkdir("parent/dir1")
+  #   FileUtils.mkdir("parent/dir1/dir1")
   #   FileUtils.mkdir("parent/dir2")
   #   FileUtils.touch("parent/file1")
   #
@@ -105,13 +109,15 @@ class Pathname
   #     #    ]
   #
   # @return [Array<Pathname>]
+  # @raise [SystemCallError]
+  #   if the Pathname does not point to an existing directory
   def dirs
     self.children.tap{|c| c.select!(&:dir?) }
   end
 
-  # Returns the recursively descended child directories of the
-  # directory indicated by the Pathname.  Returned Pathnames are
-  # prefixed by the original Pathname.
+  # Returns all (recursive) descendent directories of the directory
+  # indicated by the Pathname.  Returned Pathnames are prefixed by the
+  # original Pathname, and are in depth-first order.
   #
   # @example
   #   FileUtils.mkdir("parent")
@@ -132,15 +138,15 @@ class Pathname
     self.find.select(&:dir?).tap(&:shift)
   end
 
-  # Returns the immediate (non-recursive) child files of the directory
-  # indicated by the Pathname.  Returned Pathnames are prefixed by the
-  # original Pathname.
+  # Returns the immediate child files of the directory indicated by the
+  # Pathname.  Returned Pathnames are prefixed by the original Pathname.
   #
   # @example
   #   FileUtils.mkdir("parent")
   #   FileUtils.touch("parent/file1")
-  #   FileUtils.touch("parent/file2")
   #   FileUtils.mkdir("parent/dir1")
+  #   FileUtils.touch("parent/dir1/file1")
+  #   FileUtils.touch("parent/file2")
   #
   #   Pathname.new("parent").files
   #     # == [
@@ -149,24 +155,28 @@ class Pathname
   #     #    ]
   #
   # @return [Array<Pathname>]
+  # @raise [SystemCallError]
+  #   if the Pathname does not point to an existing directory
   def files
     self.children.tap{|c| c.select!(&:file?) }
   end
 
-  # Returns the recursively descended child files of the directory
-  # indicated by the Pathname.  Returned Pathnames are prefixed by the
-  # original Pathname.
+  # Returns all (recursive) descendent files of the directory indicated
+  # by the Pathname.  Returned Pathnames are prefixed by the original
+  # Pathname, and are in depth-first order.
   #
   # @example
   #   FileUtils.mkdir("parent")
+  #   FileUtils.touch("parent/file1")
   #   FileUtils.mkdir("parent/dir1")
   #   FileUtils.touch("parent/dir1/file1")
-  #   FileUtils.touch("parent/file1")
+  #   FileUtils.touch("parent/file2")
   #
   #   Pathname.new("parent").files_r
   #     # == [
   #     #      Pathname.new("parent/dir1/file1"),
   #     #      Pathname.new("parent/file1")
+  #     #      Pathname.new("parent/file2")
   #     #    ]
   #
   # @return [Array<Pathname>]
@@ -174,18 +184,13 @@ class Pathname
     self.find.select(&:file?)
   end
 
-  # Changes the current working directory to the directory indicated by
-  # the Pathname.  If a block is given, it is called with the Pathname,
-  # and the original working directory is restored after the block
-  # exits.
+  # Changes the current working directory to the Pathname.  If no block
+  # is given, this method returns the Pathname.  Otherwise, the block is
+  # called with the Pathname, the original working directory is restored
+  # after the block exits, this method returns the return value of the
+  # block.
   #
-  # Returns the return value of the block, if one is given.  Otherwise,
-  # returns the Pathname.
-  #
-  # Raises an exception if the directory indicated by the Pathname does
-  # not exist.
-  #
-  # See also +Dir::chdir+.
+  # @see https://docs.ruby-lang.org/en/trunk/Dir.html#method-c-chdir Dir.chdir
   #
   # @example
   #   FileUtils.mkdir("dir1")
@@ -199,12 +204,14 @@ class Pathname
   #
   # @overload chdir()
   #   @return [Pathname]
-  # @overload chdir()
-  #   @yieldparam path [Pathname]
-  #   @yieldreturn [Object] block_retval
-  #   @return [block_retval]
+  #
+  # @overload chdir(&block)
+  #   @yieldparam working_dir [Pathname]
+  #   @yieldreturn [Object] retval
+  #   @return [retval]
+  #
   # @raise [SystemCallError]
-  #   if the directory does not exist
+  #   if the Pathname does not point to an existing directory
   def chdir
     if block_given?
       Dir.chdir(self) do |dir|
@@ -216,7 +223,10 @@ class Pathname
     end
   end
 
-  # Alias of +Pathname#mkpath+, but this method returns the Pathname.
+  # Creates the directory indicated by the Pathname, including any
+  # necessary parent directories.  Returns the Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-mkpath Pathname#mkpath
   #
   # @example
   #   Dir.exist?("path")                # == false
@@ -227,14 +237,16 @@ class Pathname
   #   Dir.exist?("path")                # == true
   #   Dir.exist?("path/to")             # == true
   #
-  # @return [Pathname]
+  # @return [self]
+  # @raise [SystemCallError]
+  #   if the Pathname points to an existing file (non-directory)
   def make_dir
     self.mkpath
     self
   end
 
-  # Creates the parent (+dirname+) directories of the Pathname if they
-  # do not exist, and returns the Pathname.
+  # Creates the directory indicated by the Pathname +dirname+, including
+  # any necessary parent directories.  Returns the Pathname.
   #
   # @example
   #   Dir.exist?("path")                         # == false
@@ -246,16 +258,21 @@ class Pathname
   #   Dir.exist?("path/to")                      # == true
   #   Dir.exist?("path/to/file")                 # == false
   #
-  # @return [Pathname]
+  # @return [self]
+  # @raise [SystemCallError]
+  #   if any element of the +dirname+ points to an existing file
+  #   (non-directory)
   def make_dirname
     self.dirname.make_dir
     self
   end
 
-  # Updates the modification time (mtime) and access time (atime) of the
-  # file indicated by the Pathname, and returns the Pathname.  Creates
-  # the file and any necessary parent directories if they do not exist.
-  # See also +FileUtils.touch+.
+  # Creates the file indicated by the Pathname, including any necessary
+  # parent directories.  If the file already exists, its modification
+  # time (mtime) and access time (atime) are updated.  Returns the
+  # Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-touch FileUtils.touch
   #
   # @example
   #   Dir.exist?("path")                       # == false
@@ -267,16 +284,16 @@ class Pathname
   #   Dir.exist?("path/to")                    # == true
   #   File.exist?("path/to/file")              # == true
   #
-  # @return [Pathname]
+  # @return [self]
   def touch_file
     self.make_dirname
     FileUtils.touch(self)
     self
   end
 
-  # Recursively deletes the directory or file indicated by the Pathname,
-  # and returns the Pathname.  Similar to +Pathname#rmtree+, but does
-  # not raise an exception if the file does not exist.
+  # Recursively deletes the directory or file indicated by the Pathname.
+  # Similar to +Pathname#rmtree+, but does not raise an exception if the
+  # file does not exist.  Returns the Pathname.
   #
   # @example
   #   File.exist?("path/to/file")   # == true
@@ -287,30 +304,31 @@ class Pathname
   #   Dir.exist?("path/to")         # == false
   #   File.exist?("path/to/file")   # == false
   #
-  # @return [Pathname]
+  # @return [self]
   def delete!
     self.rmtree if self.exist?
     self
   end
 
-  # Moves the file or directory indicated by the Pathname to the given
-  # destination, and returns that destination as a Pathname.  Creates
-  # any necessary parent directories if they do not exist.  See also
-  # +FileUtils.mv+.
+  # Moves the file or directory indicated by the Pathname to
+  # +destination+, creating any necessary parent directories beforehand.
+  # Returns +destination+ as a Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-mv FileUtils.mv
   #
   # @example
-  #   File.exist?("path/to/file")      # == true
-  #   Dir.exist?("some")               # == false
-  #   Dir.exist?("some/other")         # == false
-  #   File.exist?("some/other/thing")  # == false
+  #   File.exist?("path/to/file")         # == true
+  #   Dir.exist?("other")                 # == false
+  #   Dir.exist?("other/dir")             # == false
+  #   File.exist?("other/dir/same_file")  # == false
   #
-  #   Pathname.new("path/to/file").move("some/other/thing")
-  #     # == Pathname.new("some/other/thing")
+  #   Pathname.new("path/to/file").move("other/dir/same_file")
+  #     # == Pathname.new("other/dir/same_file")
   #
-  #   File.exist?("path/to/file")      # == false
-  #   Dir.exist?("some")               # == true
-  #   Dir.exist?("some/other")         # == true
-  #   File.exist?("some/other/thing")  # == true
+  #   File.exist?("path/to/file")         # == false
+  #   Dir.exist?("other")                 # == true
+  #   Dir.exist?("other/dir")             # == true
+  #   File.exist?("other/dir/same_file")  # == true
   #
   # @param destination [Pathname, String]
   # @return [Pathname]
@@ -321,23 +339,23 @@ class Pathname
     destination
   end
 
-  # Moves the file or directory indicated by the Pathname into the given
-  # directory, and returns the resultant path as a Pathname.  Creates
-  # any necessary parent directories if they do not exist.
+  # Moves the file or directory indicated by the Pathname into
+  # +directory+, creating any necessary parent directories beforehand.
+  # Returns the resultant path as a Pathname.
   #
   # @example
-  #   File.exist?("path/to/file")     # == true
-  #   Dir.exist?("other")             # == false
-  #   Dir.exist?("other/path")        # == false
-  #   File.exist?("other/path/file")  # == false
+  #   File.exist?("path/to/file")    # == true
+  #   Dir.exist?("other")            # == false
+  #   Dir.exist?("other/dir")        # == false
+  #   File.exist?("other/dir/file")  # == false
   #
-  #   Pathname.new("path/to/file").move_into("other/path")
-  #     # == Pathname.new("other/path/file")
+  #   Pathname.new("path/to/file").move_into("other/dir")
+  #     # == Pathname.new("other/dir/file")
   #
-  #   File.exist?("path/to/file")     # == false
-  #   Dir.exist?("other")             # == true
-  #   Dir.exist?("other/path")        # == true
-  #   File.exist?("other/path/file")  # == true
+  #   File.exist?("path/to/file")    # == false
+  #   Dir.exist?("other")            # == true
+  #   Dir.exist?("other/dir")        # == true
+  #   File.exist?("other/dir/file")  # == true
   #
   # @param directory [Pathname, String]
   # @return [Pathname]
@@ -345,24 +363,25 @@ class Pathname
     self.move(directory / self.basename)
   end
 
-  # Copies the file or directory indicated by the Pathname to the given
-  # destination, and returns that destination as a Pathname.  Creates
-  # any necessary parent directories if they do not exist.  See also
-  # +FileUtils.cp_r+.
+  # Copies the file or directory indicated by the Pathname to
+  # +destination+, creating any necessary parent directories beforehand.
+  # Returns +destination+ as a Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-cp_r FileUtils.cp_r
   #
   # @example
-  #   File.exist?("path/to/file")      # == true
-  #   Dir.exist?("some")               # == false
-  #   Dir.exist?("some/other")         # == false
-  #   File.exist?("some/other/thing")  # == false
+  #   File.exist?("path/to/file")         # == true
+  #   Dir.exist?("other")                 # == false
+  #   Dir.exist?("other/dir")             # == false
+  #   File.exist?("other/dir/same_file")  # == false
   #
-  #   Pathname.new("path/to/file").copy("some/other/thing")
-  #     # == Pathname.new("some/other/thing")
+  #   Pathname.new("path/to/file").copy("other/dir/same_file")
+  #     # == Pathname.new("other/dir/same_file")
   #
-  #   File.exist?("path/to/file")      # == true
-  #   Dir.exist?("some")               # == true
-  #   Dir.exist?("some/other")         # == true
-  #   File.exist?("some/other/thing")  # == true
+  #   File.exist?("path/to/file")         # == true
+  #   Dir.exist?("other")                 # == true
+  #   Dir.exist?("other/dir")             # == true
+  #   File.exist?("other/dir/same_file")  # == true
   #
   # @param destination [Pathname, String]
   # @return [Pathname]
@@ -373,23 +392,23 @@ class Pathname
     destination
   end
 
-  # Copies the file or directory indicated by the Pathname into the
-  # given directory, and returns the resultant path as a Pathname.
-  # Creates any necessary parent directories if they do not exist.
+  # Copies the file or directory indicated by the Pathname into
+  # +directory+, creating any necessary parent directories beforehand.
+  # Returns the resultant path as a Pathname.
   #
   # @example
-  #   File.exist?("path/to/file")     # == true
-  #   Dir.exist?("other")             # == false
-  #   Dir.exist?("other/path")        # == false
-  #   File.exist?("other/path/file")  # == false
+  #   File.exist?("path/to/file")    # == true
+  #   Dir.exist?("other")            # == false
+  #   Dir.exist?("other/dir")        # == false
+  #   File.exist?("other/dir/file")  # == false
   #
-  #   Pathname.new("path/to/file").copy_into("other/path")
-  #     # == Pathname.new("other/path/file")
+  #   Pathname.new("path/to/file").copy_into("other/dir")
+  #     # == Pathname.new("other/dir/file")
   #
-  #   File.exist?("path/to/file")     # == true
-  #   Dir.exist?("other")             # == true
-  #   Dir.exist?("other/path")        # == true
-  #   File.exist?("other/path/file")  # == true
+  #   File.exist?("path/to/file")    # == true
+  #   Dir.exist?("other")            # == true
+  #   Dir.exist?("other/dir")        # == true
+  #   File.exist?("other/dir/file")  # == true
   #
   # @param directory [Pathname, String]
   # @return [Pathname]
@@ -397,18 +416,17 @@ class Pathname
     self.copy(directory / self.basename)
   end
 
-  # Renames the file or directory indicated by the Pathname, but
-  # preserves its location as indicated by +dirname+.  Returns the
-  # resultant path as a Pathname.
+  # Renames the file or directory indicated by the Pathname relative to
+  # its +dirname+.  Returns the resultant path as a Pathname.
   #
   # @example
   #   File.exist?("path/to/file")   # == true
   #
-  #   Pathname.new("path/to/file").rename_basename("other")
-  #     # == Pathname.new("path/to/other")
+  #   Pathname.new("path/to/file").rename_basename("same_file")
+  #     # == Pathname.new("path/to/same_file")
   #
-  #   File.exist?("path/to/file")   # == false
-  #   File.exist?("path/to/other")  # == true
+  #   File.exist?("path/to/file")       # == false
+  #   File.exist?("path/to/same_file")  # == true
   #
   # @param new_basename [String]
   # @return [Pathname]
@@ -418,26 +436,36 @@ class Pathname
     new_path
   end
 
-  # Renames the file extension of the file indicated by the Pathname.
-  # If the file has no extension, the new extension is appended.
+  # Changes the file extension (+extname+) of the file indicated by the
+  # Pathname.  If the file has no extension, the new extension is
+  # appended.  Returns the resultant path as a Pathname.
   #
-  # @example replace extension
-  #   File.exist?("path/to/file.abc")   # == true
+  # @example Replace extension
+  #   File.exist?("path/to/file.abc")  # == true
   #
   #   Pathname.new("path/to/file.abc").rename_extname(".xyz")
   #     # == Pathname.new("path/to/file.xyz")
   #
-  #   File.exist?("path/to/file.abc")   # == false
-  #   File.exist?("path/to/file.xyz")   # == true
+  #   File.exist?("path/to/file.abc")  # == false
+  #   File.exist?("path/to/file.xyz")  # == true
   #
-  # @example remove extension
-  #   File.exist?("path/to/file.abc")   # == true
+  # @example Add extension
+  #   File.exist?("path/to/file")      # == true
+  #
+  #   Pathname.new("path/to/file").rename_extname(".abc")
+  #     # == Pathname.new("path/to/file.abc")
+  #
+  #   File.exist?("path/to/file")      # == false
+  #   File.exist?("path/to/file.abc")  # == true
+  #
+  # @example Remove extension
+  #   File.exist?("path/to/file.abc")  # == true
   #
   #   Pathname.new("path/to/file.abc").rename_extname("")
   #     # == Pathname.new("path/to/file")
   #
-  #   File.exist?("path/to/file.abc")   # == false
-  #   File.exist?("path/to/file")       # == true
+  #   File.exist?("path/to/file.abc")  # == false
+  #   File.exist?("path/to/file")      # == true
   #
   # @param new_extname [String]
   # @return [Pathname]
@@ -450,9 +478,9 @@ class Pathname
     new_path
   end
 
-  # Writes given text to the file indicated by the Pathname, and returns
-  # the Pathname.  The file is overwritten if it already exists.  Any
-  # necessary parent directories are created if they do not exist.
+  # Writes +text+ to the file indicated by the Pathname, overwriting the
+  # file if it exists.  Creates the file if it does not exist, including
+  # any necessary parent directories.  Returns the Pathname.
   #
   # @example
   #   Dir.exist?("path")           # == false
@@ -465,15 +493,15 @@ class Pathname
   #   File.read("path/to/file")    # == "hello world"
   #
   # @param text [String]
-  # @return [Pathname]
+  # @return [self]
   def write_text(text)
     self.make_dirname.open("w"){|f| f.write(text) }
     self
   end
 
-  # Appends given text to the file indicated by the Pathname, and
-  # returns the Pathname.  The file is created if it does not exist.
-  # Any necessary parent directories are created if they do not exist.
+  # Appends +text+ to the file indicated by the Pathname.  Creates the
+  # file if it does not exist, including any necessary parent
+  # directories.  Returns the Pathname.
   #
   # @example
   #   Dir.exist?("path")           # == false
@@ -486,16 +514,16 @@ class Pathname
   #   File.read("path/to/file")    # == "hello world"
   #
   # @param text [String]
-  # @return [Pathname]
+  # @return [self]
   def append_text(text)
     self.make_dirname.open("a"){|f| f.write(text) }
     self
   end
 
-  # Writes each object as a string plus end-of-line (EOL) characters to
-  # the file indicated by the Pathname.  Returns the Pathname.  The file
-  # is overwritten if it already exists.  Any necessary parent
-  # directories are created if they do not exist.
+  # Writes each object in +lines+ as a string plus end-of-line (EOL)
+  # characters to the file indicated by the Pathname, overwriting the
+  # file if it exists.  Creates the file if it does not exist, including
+  # any necessary parent directories.  Returns the Pathname.
   #
   # @example
   #   File.exist?("path/to/file")  # false
@@ -507,16 +535,16 @@ class Pathname
   #
   # @param lines [Enumerable<#to_s>]
   # @param eol [String]
-  # @return [Pathname]
+  # @return [self]
   def write_lines(lines, eol: $/)
     self.make_dirname.open("w"){|f| f.write_lines(lines, eol: eol) }
     self
   end
 
-  # Appends each object as a string plus end-of-line (EOL) characters to
-  # the file indicated by the Pathname.  Returns the Pathname.  The file
-  # is created if it does not exist.  Any necessary parent directories
-  # are created if they do not exist.
+  # Appends each object in +lines+ as a string plus end-of-line (EOL)
+  # characters to the file indicated by the Pathname.  Creates the file
+  # if it does not exist, including any necessary parent directories.
+  # Returns the Pathname.
   #
   # @example
   #   File.exist?("path/to/file")  # false
@@ -528,7 +556,7 @@ class Pathname
   #
   # @param lines [Enumerable<#to_s>]
   # @param eol [String]
-  # @return [Pathname]
+  # @return [self]
   def append_lines(lines, eol: $/)
     self.make_dirname.open("a"){|f| f.write_lines(lines, eol: eol) }
     self
@@ -539,12 +567,13 @@ class Pathname
   # @return [String]
   alias :read_text :read
 
-  # Reads from the file indicated by the Pathname all lines, and returns
-  # them as an array, with all end-of-line (EOL) characters stripped.
-  # See also {IO#read_lines}.
+  # Reads all lines from the file indicated by the Pathname, and returns
+  # them with all end-of-line (EOL) characters stripped.
   #
-  # (Not to be confused with +Pathname#readlines+ which retains
-  # end-of-line (EOL) characters in every string it returns.)
+  # @see IO#read_lines
+  #
+  # @note Not to be confused with +Pathname#readlines+, which retains
+  #   end-of-line (EOL) characters.
   #
   # @example
   #   File.read("path/to/file")                # == "one\ntwo\n"
@@ -557,13 +586,14 @@ class Pathname
     self.open("r"){|f| f.read_lines(eol: eol) }
   end
 
-  # Reads the contents of the file indicated by the Pathname into memory
-  # as a string, and yields the string to the given block for editing.
+  # Reads the entire contents of the file indicated by the Pathname as a
+  # string, and yields that string to the given block for editing.
   # Writes the return value of the block back to the file, overwriting
-  # previous contents.  Returns the file's new contents.  See also
-  # {File.edit_text}.
+  # previous contents.  Returns the return value of the block.
   #
-  # @example update JSON data file
+  # @see File.edit_text
+  #
+  # @example Update JSON data file
   #   File.read("data.json")  # == '{"nested":{"key":"value"}}'
   #
   #   Pathname.new("data.json").edit_text do |text|
@@ -574,22 +604,24 @@ class Pathname
   #
   #   File.read("data.json")  # == '{"nested":{"key":"new value"}}'
   #
-  # @yield [text] edits current file contents
-  # @yieldparam text [String] current contents
-  # @yieldreturn [String] new contents
+  # @yield [text]
+  # @yieldparam text [String]
+  # @yieldreturn [String]
   # @return [String]
   def edit_text(&block)
     File.edit_text(self, &block)
   end
 
-  # Reads the contents of the file indicated by the Pathname into memory
-  # as an array of lines, and yields the array to the given block for
+  # Reads the entire contents of the file indicated by the Pathname as
+  # an array of lines, and yields that array to the given block for
   # editing.  Writes the return value of the block back to the file,
   # overwriting previous contents.  End-of-line (EOL) characters are
   # stripped when reading, and appended after each line when writing.
-  # Returns the return value of the block.  See also {File.edit_lines}.
+  # Returns the return value of the block.
   #
-  # @example dedup lines of file
+  # @see File.edit_lines
+  #
+  # @example Dedup lines of file
   #   File.read("entries.txt")  # == "AAA\nBBB\nBBB\nCCC\nAAA\n"
   #
   #   Pathname.new("entries.txt").edit_lines(&:uniq)
@@ -598,16 +630,16 @@ class Pathname
   #   File.read("entries.txt")  # == "AAA\nBBB\nCCC\n"
   #
   # @param eol [String]
-  # @yield [lines] edits current file contents
-  # @yieldparam lines [Array<String>] current contents
-  # @yieldreturn [Array<String>] new contents
+  # @yield [lines]
+  # @yieldparam lines [Array<String>]
+  # @yieldreturn [Array<String>]
   # @return [Array<String>]
   def edit_lines(eol: $/, &block)
     File.edit_lines(self, eol: eol, &block)
   end
 
-  # Appends the contents of another file to the destination indicated by
-  # Pathname.  Returns the destination Pathname.
+  # Appends the contents of file indicated by +source+ to the file
+  # indicated by the Pathname.  Returns the Pathname.
   #
   # @example
   #   File.read("yearly.log")  # == "one\ntwo\n"
@@ -619,7 +651,7 @@ class Pathname
   #   File.read("yearly.log")  # == "one\ntwo\nthree\nfour\n"
   #
   # @param source [String, Pathname]
-  # @return [Pathname]
+  # @return [self]
   def append_file(source)
     self.open("a"){|destination| IO::copy_stream(source, destination) }
     self

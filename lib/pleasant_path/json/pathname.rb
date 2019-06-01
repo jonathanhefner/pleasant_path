@@ -2,35 +2,37 @@
 
 class Pathname
 
-  # Reads the contents of the file indicated by the Pathname, and parses
-  # it as JSON.  The returned result will be a basic Ruby data
-  # structure, namely, one of: +nil+, +true+, +false+, a +Numeric+, a
-  # +String+, an +Array+, or a +Hash+.
+  # Parses the contents of the file indicated by the Pathname as JSON.
+  # The returned result will composed of only basic data types, e.g.
+  # +nil+, +true+, +false+, +Numeric+, +String+, +Array+, and +Hash+.
   #
-  # For information about available options, see
-  # {http://ruby-doc.org/stdlib/libdoc/json/rdoc/JSON.html#method-i-parse
-  # +JSON.parse+}.
+  # For information about +options+, see
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-parse
+  # +JSON.parse+}.  By default, this method uses
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-load_default_options
+  # +JSON.load_default_options+} plus +create_additions: false+.
   #
   # @example
   #   File.write("in.json", '{"key": "value"}')
   #
   #   Pathname.new("in.json").read_json  # == { "key" => "value" }
   #
-  # @param options [Hash]
+  # @param options [Hash<Symbol, Object>]
   # @return [nil, true, false, Numeric, String, Symbol, Array, Hash]
   def read_json(options = {})
     JSON.load(self, nil, { create_additions: false, **options })
   end
 
-  # Reads the contents of the file indicated by the Pathname, and parses
-  # it as JSON.  The parser will use type information embedded in the
-  # JSON to deserialize custom types.  This is *UNSAFE* for JSON from
-  # an untrusted source.  To consume untrusted JSON, use
-  # {Pathname#read_json} instead.
+  # Parses the contents of the file indicated by the Pathname as JSON,
+  # deserializing arbitrary data types via type information embedded in
+  # the JSON.  This is *UNSAFE* for JSON from an untrusted source.  To
+  # consume untrusted JSON, use {Pathname#read_json} instead.
   #
-  # For information about available options, see
-  # {http://ruby-doc.org/stdlib/libdoc/json/rdoc/JSON.html#method-i-parse
-  # +JSON.parse+}.
+  # For information about +options+, see
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-parse
+  # +JSON.parse+}.  By default, this method uses
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-load_default_options
+  # +JSON.load_default_options+}.
   #
   # For information about serializing custom types to JSON, see the
   # {https://github.com/flori/json/blob/master/README.md#more-examples
@@ -44,8 +46,8 @@ class Pathname
   #
   #   Pathname.new("in.json").load_json  # == Point.new(10, 20)
   #
-  # @param options [Hash]
-  # @return deserialized object
+  # @param options [Hash<Symbol, Object>]
+  # @return [Object]
   def load_json(options = {})
     JSON.load(self, nil, options)
   end

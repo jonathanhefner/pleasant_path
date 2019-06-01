@@ -1,18 +1,22 @@
 class Object
 
-  # Dumps the Object as JSON, and writes the JSON to the specified file.
-  # Returns the Object unmodified.
+  # Writes the Object serialized as JSON to the specified +file+,
+  # overwriting the file if it exists.  Creates the file if it does not
+  # exist, including any necessary parent directories.  Returns the
+  # Object, unmodified.
   #
-  # For information about available options see
-  # {http://ruby-doc.org/stdlib/libdoc/json/rdoc/JSON.html#method-i-generate
-  # +JSON.generate+}.
+  # For information about +options+ see
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-generate
+  # +JSON.generate+}.  By default, this method uses
+  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-dump_default_options
+  # +JSON.dump_default_options+}.
   #
   # @example
   #   { "key" => "value" }.write_to_json("out.json")  # == { "key" => "value" }
   #   File.read("out.json")                           # == '{"key":"value"}'
   #
   # @param file [String, Pathname]
-  # @param options [Hash]
+  # @param options [Hash<Symbol, Object>]
   # @return [self]
   def write_to_json(file, options = {})
     options = JSON.dump_default_options.merge(options)

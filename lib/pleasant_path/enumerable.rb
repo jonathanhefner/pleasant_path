@@ -1,9 +1,11 @@
 module Enumerable
 
-  # Writes the Enumerable as lines to the given file, and returns the
-  # Enumerable.  End-of-line (EOL) characters are written after each
-  # line.  The file is overwritten if it already exists.  Any necessary
-  # parent directories are created if they do not exist.
+  # Writes each object in the Enumerable as a string plus end-of-line
+  # (EOL) characters to the specified +file+, overwriting the file if it
+  # exists.  Creates the file if it does not exist, including any
+  # necessary parent directories.  Returns the Enumerable.
+  #
+  # @see Pathname#write_lines
   #
   # @example
   #   [:one, :two].write_to_file("out.txt")  # == [:one, :two]
@@ -11,16 +13,18 @@ module Enumerable
   #
   # @param file [String, Pathname]
   # @param eol [String]
-  # @return [Enumerable]
+  # @return [self]
   def write_to_file(file, eol: $/)
     file.to_pathname.write_lines(self, eol: eol)
     self
   end
 
-  # Appends the Enumerable as lines to the given file, and returns the
-  # Enumerable.  End-of-line (EOL) characters are written after each
-  # line.  The file is created if it does not exist.  Any necessary
-  # parent directories are created if they do not exist.
+  # Appends each object in the Enumerable as a string plus end-of-line
+  # (EOL) characters to the specified +file+.  Creates the file if it
+  # does not exist, including any necessary parent directories.  Returns
+  # the Enumerable.
+  #
+  # @see Pathname#append_lines
   #
   # @example
   #   [:one, :two].append_to_file("out.txt")     # == [:one, :two]
@@ -30,7 +34,7 @@ module Enumerable
   #
   # @param file [String, Pathname]
   # @param eol [String]
-  # @return [Enumerable]
+  # @return [self]
   def append_to_file(file, eol: $/)
     file.to_pathname.append_lines(self, eol: eol)
     self

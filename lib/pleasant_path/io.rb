@@ -2,16 +2,15 @@
 
 class IO
 
-  # Writes each object as a string plus end-of-line (EOL) characters to
-  # the IO.  Returns the objects unmodified.
+  # Writes each object in +lines+ as a string plus end-of-line (EOL)
+  # characters to the IO.  Returns +lines+, unmodified.
   #
   # @example
-  #   # NOTE File inherits from IO
-  #   File.open("out.txt") do |file|
-  #     file.write_lines([:one, :two])  # == [:one, :two]
-  #   end                               # == [:one, :two]
+  #   File.open("out.txt") do |io|
+  #     io.write_lines([:one, :two])  # == [:one, :two]
+  #   end                             # == [:one, :two]
   #
-  #   File.read("out.txt")              # == "one\ntwo\n"
+  #   File.read("out.txt")            # == "one\ntwo\n"
   #
   # @param lines [Enumerable<#to_s>]
   # @param eol [String]
@@ -25,19 +24,18 @@ class IO
     lines
   end
 
-  # Reads from the IO all lines, and returns them as an array, with all
-  # end-of-line (EOL) characters stripped.
+  # Reads all lines from the IO, and returns them with all end-of-line
+  # (EOL) characters stripped.
   #
-  # (Not to be confused with +IO#readlines+ which retains end-of-line
-  # (EOL) characters in every string it returns.)
+  # @note Not to be confused with +IO#readlines+, which retains
+  #   end-of-line (EOL) characters.
   #
   # @example
-  #   # NOTE File inherits from IO
-  #   File.read("in.txt")            # == "one\ntwo\n"
+  #   File.read("in.txt")          # == "one\ntwo\n"
   #
-  #   File.open("in.txt") do |file|
-  #     file.read_lines              # == ["one", "two"]
-  #   end                            # == ["one", "two"]
+  #   File.open("in.txt") do |io|
+  #     io.read_lines              # == ["one", "two"]
+  #   end                          # == ["one", "two"]
   #
   # @param eol [String]
   # @return [Array<String>]

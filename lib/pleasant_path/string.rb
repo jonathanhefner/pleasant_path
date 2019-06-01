@@ -1,6 +1,6 @@
 class String
 
-  # Converts the string to a +Pathname+ object.
+  # Constructs a Pathname from the String.
   #
   # @example
   #   "path/to/file".to_pathname  # == Pathname.new("path/to/file")
@@ -15,8 +15,8 @@ class String
   # @return [Pathname]
   alias :path :to_pathname
 
-  # Joins the string and the argument with a directory separator (a la
-  # +File.join+) and returns the result as a +Pathname+ object.
+  # Constructs a Pathname from the String, and appends +child+ to the
+  # Pathname.
   #
   # @example
   #   "path/to" / "file"  # == Pathname.new("path/to/file")
@@ -27,11 +27,14 @@ class String
     self.path / child
   end
 
-  # Treating the string as a path, joins the parent (+dirname+) of the
-  # path with the argument, and returns the result as a +Pathname+
-  # object.  The mnemonic for this operator is that the resultant path
-  # goes up one directory level from the original, then goes down to the
-  # directory specified by the argument.  See also {Pathname#^}.
+  # Constructs a Pathname from the String, and appends +sibling+ to the
+  # +dirname+ of the Pathname.
+  #
+  # The mnemonic for this operator is that the result is formed by going
+  # up one directory level from the original path, then going back down
+  # to +sibling+.
+  #
+  # @see Pathname#^
   #
   # @example
   #   "path/to/file1" ^ "file2"  # == Pathname.new("path/to/file2")
@@ -42,9 +45,10 @@ class String
     self.path ^ sibling
   end
 
-  # Treats the string as a filename pattern, and expands the pattern
-  # into matching paths as +Pathname+ objects.  See also +Dir.glob+ and
-  # +Pathname.glob+.
+  # Returns an array of Pathnames which match the filename pattern
+  # contained in the String.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-glob Pathname.glob
   #
   # @example
   #   "*.txt".glob  # == Pathname.glob("*.txt")
@@ -54,24 +58,28 @@ class String
     Pathname.glob(self)
   end
 
-  # Writes the string to the given file, and returns the string.  The
-  # file is overwritten if it already exists.  Any necessary parent
-  # directories are created if they do not exist.
+  # Writes the String to the specified +file+, overwriting the file if
+  # it exists.  Creates the file if it does not exist, including
+  # any necessary parent directories.  Returns the String.
+  #
+  # @see Pathname#write_text
   #
   # @example
   #   "hello world".write_to_file("out.txt")  # == "hello world"
   #   File.read("out.txt")                    # == "hello world"
   #
   # @param file [String, Pathname]
-  # @return [String]
+  # @return [self]
   def write_to_file(file)
     file.to_pathname.write_text(self)
     self
   end
 
-  # Appends the string to the given file, and returns the string.  The
-  # file is created if it does not exist.  Any necessary parent
-  # directories are created if they do not exist.
+  # Appends the String to the specified +file+.  Creates the file if it
+  # does not exist, including any necessary parent directories.  Returns
+  # the String.
+  #
+  # @see Pathname#append_text
   #
   # @example
   #   "hello".append_to_file("out.txt")   # == "hello"
@@ -80,7 +88,7 @@ class String
   #   File.read("out.txt")                # == "hello world"
   #
   # @param file [String, Pathname]
-  # @return [String]
+  # @return [self]
   def append_to_file(file)
     file.to_pathname.append_text(self)
     self
