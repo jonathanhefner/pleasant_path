@@ -44,6 +44,7 @@ The following methods are available:
   - [#files](http://www.rubydoc.info/gems/pleasant_path/Pathname:files)
   - [#files_r](http://www.rubydoc.info/gems/pleasant_path/Pathname:files_r)
   - [#find_dirs](http://www.rubydoc.info/gems/pleasant_path/Pathname:find_dirs)
+  - [#find_files](http://www.rubydoc.info/gems/pleasant_path/Pathname:find_files)
   - [#make_dir](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dir)
   - [#make_dirname](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dirname)
   - [#move](http://www.rubydoc.info/gems/pleasant_path/Pathname:move)

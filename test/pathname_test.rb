@@ -107,6 +107,26 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_find_files_with_block
+    with_tmp_tree do |base, dirs, files|
+      found = []
+      base.find_files do |file|
+        found << file
+      end
+
+      assert_equal files.sort, found.sort
+    end
+  end
+
+  def test_find_files_without_block
+    with_tmp_tree do |base, dirs, files|
+      enum = base.find_files
+
+      assert_kind_of Enumerator, enum
+      assert_equal files.sort, enum.to_a.sort
+    end
+  end
+
   def test_chdir_with_block
     old_pwd = Pathname.pwd
     new_pwd = old_pwd.dirname

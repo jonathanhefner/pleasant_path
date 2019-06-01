@@ -211,7 +211,33 @@ class Pathname
   #
   # @return [Array<Pathname>]
   def files_r
-    self.find.select(&:file?)
+    self.find_files.to_a
+  end
+
+  # Iterates over all (recursive) descendent files of the directory
+  # indicated by the Pathname.  Iterated Pathnames are prefixed by the
+  # original Pathname, and are in depth-first order.
+  #
+  # If no block is given, this method returns an Enumerator.  Otherwise,
+  # the block is called with each descendent Pathname, and this method
+  # returns the original Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-find Pathname#find
+  #
+  # @overload find_files()
+  #   @return [Enumerator<Pathname>]
+  #
+  # @overload find_files(&block)
+  #   @yieldparam descendent [Pathname]
+  #   @return [Pathname]
+  def find_files
+    return to_enum(__method__) unless block_given?
+
+    self.find do |path|
+      yield path if path.file?
+    end
+
+    self
   end
 
   # Changes the current working directory to the Pathname.  If no block
