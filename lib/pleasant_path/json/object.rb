@@ -15,12 +15,8 @@ class Object
   # @param options [Hash]
   # @return [self]
   def write_to_json(file, options = {})
-    options = {
-      quirks_mode: true,
-      allow_nan: true,
-    }.merge(options)
-
-    file.to_pathname.write_text(JSON.generate(self, options))
+    options = JSON.dump_default_options.merge(options)
+    file.to_pathname.write_text(self.to_json(options))
     self
   end
 

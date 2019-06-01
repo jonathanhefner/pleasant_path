@@ -19,14 +19,7 @@ class Pathname
   # @param options [Hash]
   # @return [nil, true, false, Numeric, String, Symbol, Array, Hash]
   def read_json(options = {})
-    options = {
-      quirks_mode: true,
-      allow_nan: true,
-      max_nesting: false,
-      create_additions: false,
-    }.merge(options)
-
-    JSON.parse(self.read_text, options)
+    JSON.load(self, nil, { create_additions: false, **options })
   end
 
   # Reads the contents of the file indicated by the Pathname, and parses
@@ -54,7 +47,7 @@ class Pathname
   # @param options [Hash]
   # @return deserialized object
   def load_json(options = {})
-    self.open("r"){|f| JSON.load(f, nil, options) }
+    JSON.load(self, nil, options)
   end
 
 end
