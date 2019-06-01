@@ -43,6 +43,7 @@ The following methods are available:
   - [#existence](http://www.rubydoc.info/gems/pleasant_path/Pathname:existence)
   - [#files](http://www.rubydoc.info/gems/pleasant_path/Pathname:files)
   - [#files_r](http://www.rubydoc.info/gems/pleasant_path/Pathname:files_r)
+  - [#find_dirs](http://www.rubydoc.info/gems/pleasant_path/Pathname:find_dirs)
   - [#make_dir](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dir)
   - [#make_dirname](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dirname)
   - [#move](http://www.rubydoc.info/gems/pleasant_path/Pathname:move)

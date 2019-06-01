@@ -73,6 +73,26 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_find_dirs_with_block
+    with_tmp_tree do |base, dirs, files|
+      found = []
+      base.find_dirs do |dir|
+        found << dir
+      end
+
+      assert_equal dirs.sort, found.sort
+    end
+  end
+
+  def test_find_dirs_without_block
+    with_tmp_tree do |base, dirs, files|
+      enum = base.find_dirs
+
+      assert_kind_of Enumerator, enum
+      assert_equal dirs.sort, enum.to_a.sort
+    end
+  end
+
   def test_files
     with_tmp_tree do |base, dirs, files|
       child_files = files.select{|file| file.dirname == base }

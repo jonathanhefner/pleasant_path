@@ -135,7 +135,37 @@ class Pathname
   #
   # @return [Array<Pathname>]
   def dirs_r
-    self.find.select(&:dir?).tap(&:shift)
+    self.find_dirs.to_a
+  end
+
+  # Iterates over all (recursive) descendent directories of the
+  # directory indicated by the Pathname.  Iterated Pathnames are
+  # prefixed by the original Pathname, and are in depth-first order.
+  #
+  # If no block is given, this method returns an Enumerator.  Otherwise,
+  # the block is called with each descendent Pathname, and this method
+  # returns the original Pathname.
+  #
+  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-find Pathname#find
+  #
+  # @overload find_dirs()
+  #   @return [Enumerator<Pathname>]
+  #
+  # @overload find_dirs(&block)
+  #   @yieldparam descendent [Pathname]
+  #   @return [Pathname]
+  def find_dirs
+    return to_enum(__method__) unless block_given?
+
+    self.find do |path|
+      if path.file?
+        Find.prune
+      elsif path != self
+        yield path
+      end
+    end
+
+    self
   end
 
   # Returns the immediate child files of the directory indicated by the
