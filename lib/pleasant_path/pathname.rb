@@ -324,6 +324,29 @@ class Pathname
   end
 
   # Creates the file indicated by the Pathname, including any necessary
+  # parent directories.  Returns the Pathname.
+  #
+  # @example
+  #   Dir.exist?("path")                      # == false
+  #   Dir.exist?("path/to")                   # == false
+  #
+  #   Pathname.new("path/to/file").make_file  # == Pathname.new("path/to/file")
+  #
+  #   Dir.exist?("path")                      # == true
+  #   Dir.exist?("path/to")                   # == true
+  #   File.exist?("path/to/file")             # == true
+  #
+  # @return [Pathname]
+  # @raise [SystemCallError]
+  #   if the Pathname points to an existent directory
+  def make_file
+    self.make_dirname.open("a"){}
+    self
+  end
+
+  # @deprecated Use {Pathname#make_file}.
+  #
+  # Creates the file indicated by the Pathname, including any necessary
   # parent directories.  If the file already exists, its modification
   # time (mtime) and access time (atime) are updated.  Returns the
   # Pathname.

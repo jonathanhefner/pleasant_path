@@ -187,6 +187,22 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_make_file
+    with_tmp_file(false) do |file|
+      assert_equal file, file.make_file
+      assert file.file?
+
+      file.write("expected")
+      assert_equal "expected", file.make_file.read
+    end
+  end
+
+  def test_make_file_with_existent_dir
+    assert_raises(SystemCallError) do
+      Pathname.new(__FILE__).dirname.make_file
+    end
+  end
+
   def test_touch_file
     with_tmp_file(false) do |file|
       assert_equal file, file.touch_file
