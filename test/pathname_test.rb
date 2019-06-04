@@ -220,6 +220,47 @@ class PathnameTest < Minitest::Test
     end
   end
 
+  def test_available_name
+    with_tmp_dir do |dir|
+      ["some_file.txt", "some_file", ".some_file"].each do |file|
+        original = dir / file
+        available = original.available_name
+
+        assert_equal original, available
+
+        2.times do
+          FileUtils.touch(available)
+          available = original.available_name
+
+          refute available.exist?
+          assert_equal original.dirname, available.dirname
+          assert_equal original.extname, available.extname
+          assert available.basename.to_s.start_with?(original.basename.sub_ext("").to_s)
+        end
+      end
+    end
+  end
+
+  def test_available_name_with_format
+    with_tmp_file do |file|
+      expected = file.dirname / "1 #{file.extname} #{file.basename.sub_ext("")}"
+      available = file.available_name("%{i} %{ext} %{name}")
+
+      refute_empty file.extname # sanity check
+      assert_equal expected, available
+    end
+  end
+
+  def test_available_name_with_i
+    with_tmp_file do |file|
+      i = 123
+      expected = file.sub_ext("_#{i}#{file.extname}")
+      available = file.available_name(i: i)
+
+      assert_equal expected, available
+    end
+  end
+
   def test_move
     with_tmp_file do |source|
       destination = source.dirname / "destination/dir/file"

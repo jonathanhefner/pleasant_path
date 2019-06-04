@@ -30,6 +30,7 @@ The following methods are available:
   - [#append_file](http://www.rubydoc.info/gems/pleasant_path/Pathname:append_file)
   - [#append_lines](http://www.rubydoc.info/gems/pleasant_path/Pathname:append_lines)
   - [#append_text](http://www.rubydoc.info/gems/pleasant_path/Pathname:append_text)
+  - [#available_name](http://www.rubydoc.info/gems/pleasant_path/Pathname:available_name)
   - [#chdir](http://www.rubydoc.info/gems/pleasant_path/Pathname:chdir)
   - [#common_path](http://www.rubydoc.info/gems/pleasant_path/Pathname:common_path)
   - [#copy](http://www.rubydoc.info/gems/pleasant_path/Pathname:copy)

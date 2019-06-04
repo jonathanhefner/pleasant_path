@@ -389,6 +389,66 @@ class Pathname
     self
   end
 
+  # Finds an available name based on the Pathname.  If the Pathname does
+  # not point to an existing file or directory, returns the Pathname.
+  # Otherwise, iteratively generates and tests names until one is found
+  # that does not point to an existing file or directory.
+  #
+  # Names are generated using a Hash-style format string with three
+  # populated values:
+  #
+  # * +%{name}+: original Pathname basename *without* extname
+  # * +%{ext}+: original Pathname extname, including leading dot
+  # * +%{i}+: iteration counter; can be initialized via +:i+ kwarg
+  #
+  # @example Incremental
+  #   Pathname.new("dir/file.txt").available_name  # == Pathname.new("dir/file.txt")
+  #
+  #   FileUtils.mkdir("dir")
+  #   FileUtils.touch("dir/file.txt")
+  #
+  #   Pathname.new("dir/file.txt").available_name  # == Pathname.new("dir/file_1.txt")
+  #
+  #   FileUtils.touch("dir/file_1.txt")
+  #   FileUtils.touch("dir/file_2.txt")
+  #
+  #   Pathname.new("dir/file.txt").available_name  # == Pathname.new("dir/file_3.txt")
+  #
+  # @example Specifying format
+  #   FileUtils.touch("file.txt")
+  #
+  #   Pathname.new("file.txt").available_name("%{name} (%{i})%{ext}")
+  #     # == Pathname.new("file (1).txt")
+  #
+  # @example Specifying initial counter
+  #   FileUtils.touch("file.txt")
+  #
+  #   Pathname.new("file.txt").available_name(i: 0)
+  #     # == Pathname.new("file_0.txt")
+  #
+  # @param format [String]
+  # @param i [Integer]
+  # @return [Pathname]
+  def available_name(format = "%{name}_%{i}%{ext}", i: 1)
+    return self unless self.exist?
+
+    dirname = File.dirname(self)
+    format = "%{dirname}/" + format unless dirname == "."
+
+    values = {
+      dirname: dirname,
+      name: File.basename(self, ".*"),
+      ext: self.extname,
+      i: i,
+    }
+
+    while (path = format % values) && File.exist?(path)
+      values[:i] += 1
+    end
+
+    path.to_pathname
+  end
+
   # Moves the file or directory indicated by the Pathname to
   # +destination+, creating any necessary parent directories beforehand.
   # Returns +destination+ as a Pathname.
