@@ -271,13 +271,15 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_move_into
-    with_tmp_file do |source|
-      destination = source.dirname / "destination/dir" / source.basename
+  def test_move_as
+    check_move_as_semantics("file_a", "dir/file_b") do |original, conflicting, block|
+      original.move_as(conflicting, &block)
+    end
+  end
 
-      assert_equal destination, source.move_into(destination.dirname)
-      assert destination.exist?
-      refute source.exist?
+  def test_move_into
+    check_move_as_semantics("file", "dir/file") do |original, conflicting, block|
+      original.move_into(conflicting.dirname, &block)
     end
   end
 
@@ -302,53 +304,35 @@ class PathnameTest < Minitest::Test
   end
 
   def test_rename_basename
-    with_tmp_file do |old_path|
-      new_path = old_path.dirname / "renamed"
-
-      assert_equal new_path, old_path.rename_basename(new_path.basename)
-      assert new_path.exist?
-      refute old_path.exist?
-    end
-  end
-
-  def test_rename_basename_with_different_case
-    with_tmp_file do |old_path|
-      new_path = old_path.dirname / old_path.basename.to_s.swapcase
-
-      assert_equal new_path, old_path.rename_basename(new_path.basename)
-      assert new_path.exist?
+    check_move_as_semantics("file_a", "file_b") do |original, conflicting, block|
+      original.rename_basename(conflicting.basename, &block)
     end
   end
 
   def test_rename_extname
-    with_tmp_dir do |dir|
-      [ [".a", ".b"],
-        [".a", ".A"],
-        [".a", ""],
-        ["", ".a"],
-      ].each do |old_extname, new_extname|
-        old_file = (dir / "file#{old_extname}").tap{|file| FileUtils.touch(file) }
-        new_file = (dir / "file#{new_extname}")
+    check_move_as_semantics("file.a", "file.b") do |original, conflicting, block|
+      original.rename_extname(conflicting.extname, &block)
+    end
+  end
 
-        assert_equal new_file, old_file.rename_extname(new_extname)
-        assert new_file.exist?
-        refute old_file.exist?
+  def test_rename_extname_with_empty_extname
+    with_tmp_file do |file|
+      refute_empty file.extname # sanity check
+
+      ["", ".a"].each do |extname| # to empty, from empty
+        expected = file.sub_ext(extname)
+        file = file.rename_extname(extname)
+        assert_equal expected, file
+        assert expected.file?
       end
     end
   end
 
   def test_rename_extname_without_dot
-    with_tmp_dir do |dir|
-      [ [".a", "b"],
-        ["", "b"],
-      ].each do |old_extname, new_extname|
-        old_file = (dir / "file#{old_extname}").tap{|file| FileUtils.touch(file) }
-        new_file = (dir / "file.#{new_extname}")
-
-        assert_equal new_file, old_file.rename_extname(new_extname)
-        assert new_file.exist?
-        refute old_file.exist?
-      end
+    with_tmp_file do |file|
+      expected = file.sub_ext(".a")
+      assert_equal expected, file.rename_extname("a")
+      assert expected.file?
     end
   end
 
@@ -463,6 +447,67 @@ class PathnameTest < Minitest::Test
         each{|file| FileUtils.touch(file) }
 
       yield base, dirs, files
+    end
+  end
+
+  def check_move_as_semantics(original, conflicting)
+    with_tmp_dir do |dir|
+      original = dir / original
+      original.dirname.mkpath
+      original.write("A")
+
+      # block is not called if paths are identical
+      assert_equal original, (yield original, original, proc{ raise })
+      assert_equal "A", original.read
+
+      conflicting = dir / conflicting
+
+      # block is not called if destination file does not exist
+      assert_equal conflicting, (yield original, conflicting, proc{ raise })
+      refute original.exist?
+      assert_equal "A", conflicting.read
+
+      original.write("B")
+
+      # move is aborted if block returns nil
+      assert_equal original, (yield original, conflicting, proc{ nil })
+      assert_equal "B", original.read
+      assert_equal "A", conflicting.read
+
+      # block receives both paths
+      yield original, conflicting, ->(src, dst) do
+        assert_equal original, src
+        assert_equal conflicting, dst
+        nil
+      end
+
+      # block may return source path
+      assert_equal original, (yield original, conflicting, ->(src, dst){ src })
+      assert_equal "B", original.read
+      assert_equal "A", conflicting.read
+
+      # block may return destination path
+      assert_equal conflicting, (yield original, conflicting, ->(src, dst){ dst })
+      refute original.exist?
+      assert_equal "B", conflicting.read
+
+      original.write("C")
+      other = dir / "deeper/nested/file"
+
+      # block may return other path
+      assert_equal other, (yield original, conflicting, proc{ other })
+      refute original.exist?
+      assert_equal "B", conflicting.read
+      assert_equal "C", other.read
+
+      original.write("D")
+      conflicting.delete
+      conflicting.mkdir
+
+      # destination is deleted before move
+      assert_equal conflicting, (yield original, conflicting, nil)
+      refute original.exist?
+      assert_equal "D", conflicting.read
     end
   end
 

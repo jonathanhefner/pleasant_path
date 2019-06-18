@@ -450,8 +450,9 @@ class Pathname
   end
 
   # Moves the file or directory indicated by the Pathname to
-  # +destination+, creating any necessary parent directories beforehand.
-  # Returns +destination+ as a Pathname.
+  # +destination+, in the same manner as +FileUtils.mv+.  Creates any
+  # necessary parent directories of the destination.  Returns
+  # +destination+ as a Pathname.
   #
   # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-mv FileUtils.mv
   #
@@ -478,28 +479,167 @@ class Pathname
     destination
   end
 
+  # Moves the file or directory indicated by the Pathname to a
+  # destination, replacing any existing file or directory.
+  #
+  # If a block is given and a file or directory does exist at the
+  # destination, the block is called with the source and destination
+  # Pathnames, and the return value of the block is used as the new
+  # destination.  If the block returns the source Pathname or +nil+, the
+  # move is aborted.
+  #
+  # Creates any necessary parent directories of the destination.
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the move is aborted).
+  #
+  # *WARNING:* Due to system API limitations, the move is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is moved to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
+  #
+  # @example Without a block
+  #   FileUtils.touch("file")
+  #
+  #   Pathname.new("file").move_as("dir/file")
+  #     # == Pathname.new("dir/file")
+  #
+  #   File.exist?("file")      # == false
+  #   File.exist?("dir/file")  # == true
+  #
+  # @example Error on older source
+  #   FileUtils.touch("file")
+  #   sleep 1
+  #   FileUtils.touch("file.new")
+  #
+  #   Pathname.new("file.new").move_as("file") do |source, destination|
+  #     if source.mtime < destination.mtime
+  #       raise "cannot replace newer file #{destination} with #{source}"
+  #     end
+  #     destination
+  #   end                      # == Pathname.new("file")
+  #
+  #   File.exist?("file.new")  # == false
+  #   File.exist?("file")      # == true
+  #
+  # @example Abort on conflict
+  #   FileUtils.touch("file1")
+  #   FileUtils.touch("file2")
+  #
+  #   Pathname.new("file1").move_as("file2") do |source, destination|
+  #     puts "#{source} not moved to #{destination} due to conflict"
+  #     nil
+  #   end                   # == Pathname.new("file1")
+  #
+  #   File.exist?("file1")  # == true
+  #   File.exist?("file2")  # == true
+  #
+  # @example New destination on conflict
+  #   FileUtils.touch("file1")
+  #   FileUtils.touch("file2")
+  #
+  #   Pathname.new("file1").move_as("file2") do |source, destination|
+  #     destination.available_name
+  #   end                     # == Pathname.new("file2_1")
+  #
+  #   File.exist?("file1")    # == false
+  #   File.exist?("file2")    # == true
+  #   File.exist?("file2_1")  # == true
+  #
+  # @overload move_as(destination)
+  #   @param destination [Pathname, String]
+  #   @return [Pathname]
+  #
+  # @overload move_as(destination, &block)
+  #   @param destination [Pathname, String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def move_as(destination)
+    destination = destination.to_pathname
+
+    if block_given? && destination.exist? && self.exist? && !File.identical?(self, destination)
+      destination = (yield self, destination) || self
+    end
+
+    if destination != self
+      if File.identical?(self, destination)
+        # FileUtils.mv raises an ArgumentError when both paths refer to
+        # the same file.  On case-insensitive file systems, this occurs
+        # even when both paths have different casing.  We want to
+        # disregard the ArgumentError at all times, and change the
+        # filename casing when applicable.
+        File.rename(self, destination)
+      else
+        destination.delete!
+        self.move(destination)
+      end
+    end
+
+    destination
+  end
+
   # Moves the file or directory indicated by the Pathname into
-  # +directory+, creating any necessary parent directories beforehand.
-  # Returns the resultant path as a Pathname.
+  # +directory+, replacing any existing file or directory of the same
+  # basename.
   #
-  # @example
-  #   File.exist?("path/to/file")    # == true
-  #   Dir.exist?("other")            # == false
-  #   Dir.exist?("other/dir")        # == false
-  #   File.exist?("other/dir/file")  # == false
+  # If a block is given and a file or directory does exist at the
+  # resultant destination, the block is called with the source and
+  # destination Pathnames, and the return value of the block is used as
+  # the new destination.  If the block returns the source Pathname or
+  # +nil+, the move is aborted.
   #
-  #   Pathname.new("path/to/file").move_into("other/dir")
-  #     # == Pathname.new("other/dir/file")
+  # Creates any necessary parent directories of the destination.
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the move is aborted).
   #
-  #   File.exist?("path/to/file")    # == false
-  #   Dir.exist?("other")            # == true
-  #   Dir.exist?("other/dir")        # == true
-  #   File.exist?("other/dir/file")  # == true
+  # *WARNING:* Due to system API limitations, the move is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is moved to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
   #
-  # @param directory [Pathname, String]
-  # @return [Pathname]
-  def move_into(directory)
-    self.move(directory / self.basename)
+  # @see Pathname#move_as
+  #
+  # @example Without a block
+  #   FileUtils.touch("file")
+  #
+  #   Pathname.new("file").move_into("dir")
+  #     # == Pathname.new("dir/file")
+  #
+  #   File.exist?("file")      # == false
+  #   File.exist?("dir/file")  # == true
+  #
+  # @example With a block
+  #   FileUtils.mkpath("files")
+  #   FileUtils.touch("files/file1")
+  #   FileUtils.mkpath("dir/files")
+  #   FileUtils.touch("dir/files/file2")
+  #
+  #   Pathname.new("files").move_into("dir") do |source, destination|
+  #     source                        # == Pathname.new("files")
+  #     destination                   # == Pathname.new("dir/files")
+  #   end                             # == Pathname.new("dir/files")
+  #
+  #   Dir.exist?("files")             # == false
+  #   File.exist?("dir/files/file1")  # == true
+  #   File.exist?("dir/files/file2")  # == false
+  #
+  # @overload move_into(directory)
+  #   @param directory [Pathname, String]
+  #   @return [Pathname]
+  #
+  # @overload move_into(directory, &block)
+  #   @param directory [Pathname, String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def move_into(directory, &block)
+    self.move_as(directory / self.basename, &block)
   end
 
   # Copies the file or directory indicated by the Pathname to
@@ -555,66 +695,150 @@ class Pathname
     self.copy(directory / self.basename)
   end
 
-  # Renames the file or directory indicated by the Pathname relative to
-  # its +dirname+.  Returns the resultant path as a Pathname.
+  # Alias of +Pathname#move_as+.
   #
-  # @example
-  #   File.exist?("path/to/file")   # == true
-  #
-  #   Pathname.new("path/to/file").rename_basename("same_file")
-  #     # == Pathname.new("path/to/same_file")
-  #
-  #   File.exist?("path/to/file")       # == false
-  #   File.exist?("path/to/same_file")  # == true
-  #
-  # @param new_basename [String]
   # @return [Pathname]
-  def rename_basename(new_basename)
-    new_path = self.dirname / new_basename
-    self.rename(new_path)
-    new_path
+  alias :rename_as :move_as
+
+  # Renames the file or directory indicated by the Pathname relative to
+  # its +dirname+, replacing any existing file or directory of the same
+  # basename.
+  #
+  # If a block is given and a file or directory does exist at the
+  # resultant destination, the block is called with the source and
+  # destination Pathnames, and the return value of the block is used as
+  # the new destination.  If the block returns the source Pathname or
+  # +nil+, the rename is aborted.
+  #
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the rename is aborted).
+  #
+  # *WARNING:* Due to system API limitations, the rename is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is moved to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
+  #
+  # @see Pathname#move_as
+  #
+  # @example Without a block
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file")
+  #
+  #   Pathname.new("dir/file").rename_basename("same_file")
+  #     # == Pathname.new("dir/same_file")
+  #
+  #   File.exist?("dir/file")       # == false
+  #   File.exist?("dir/same_file")  # == true
+  #
+  # @example With a block
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file1")
+  #   FileUtils.touch("dir/file2")
+  #
+  #   Pathname.new("dir/file1").rename_basename("file2") do |source, destination|
+  #     source                  # == Pathname.new("dir/file1")
+  #     destination             # == Pathname.new("dir/file2")
+  #   end                       # == Pathname.new("dir/file2")
+  #
+  #   File.exist?("dir/file1")  # == false
+  #   File.exist?("dir/file2")  # == true
+  #
+  # @overload rename_basename(new_basename)
+  #   @param new_basename [Pathname, String]
+  #   @return [Pathname]
+  #
+  # @overload rename_basename(new_basename, &block)
+  #   @param new_basename [Pathname, String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def rename_basename(new_basename, &block)
+    self.move_as(self.dirname / new_basename, &block)
   end
 
   # Changes the file extension (+extname+) of the file indicated by the
-  # Pathname.  If the file has no extension, the new extension is
-  # appended.  Returns the resultant path as a Pathname.
+  # Pathname, replacing any existing file or directory of the same
+  # resultant basename.
+  #
+  # If a block is given and a file or directory does exist at the
+  # resultant destination, the block is called with the source and
+  # destination Pathnames, and the return value of the block is used as
+  # the new destination.  If the block returns the source Pathname or
+  # +nil+, the rename is aborted.
+  #
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the rename is aborted).
+  #
+  # *WARNING:* Due to system API limitations, the rename is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is moved to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
+  #
+  # @see Pathname#move_as
   #
   # @example Replace extension
-  #   File.exist?("path/to/file.abc")  # == true
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file.abc")
   #
-  #   Pathname.new("path/to/file.abc").rename_extname(".xyz")
-  #     # == Pathname.new("path/to/file.xyz")
+  #   Pathname.new("dir/file.abc").rename_extname(".xyz")
+  #     # == Pathname.new("dir/file.xyz")
   #
-  #   File.exist?("path/to/file.abc")  # == false
-  #   File.exist?("path/to/file.xyz")  # == true
+  #   File.exist?("dir/file.abc")  # == false
+  #   File.exist?("dir/file.xyz")  # == true
   #
   # @example Add extension
-  #   File.exist?("path/to/file")      # == true
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file")
   #
-  #   Pathname.new("path/to/file").rename_extname(".abc")
-  #     # == Pathname.new("path/to/file.abc")
+  #   Pathname.new("dir/file").rename_extname(".abc")
+  #     # == Pathname.new("dir/file.abc")
   #
-  #   File.exist?("path/to/file")      # == false
-  #   File.exist?("path/to/file.abc")  # == true
+  #   File.exist?("dir/file")      # == false
+  #   File.exist?("dir/file.abc")  # == true
   #
   # @example Remove extension
-  #   File.exist?("path/to/file.abc")  # == true
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file.abc")
   #
-  #   Pathname.new("path/to/file.abc").rename_extname("")
-  #     # == Pathname.new("path/to/file")
+  #   Pathname.new("dir/file.abc").rename_extname("")
+  #     # == Pathname.new("dir/file")
   #
-  #   File.exist?("path/to/file.abc")  # == false
-  #   File.exist?("path/to/file")      # == true
+  #   File.exist?("dir/file.abc")  # == false
+  #   File.exist?("dir/file")      # == true
   #
-  # @param new_extname [String]
-  # @return [Pathname]
-  def rename_extname(new_extname)
+  # @example With a block
+  #   FileUtils.mkpath("dir")
+  #   FileUtils.touch("dir/file.abc")
+  #   FileUtils.touch("dir/file.xyz")
+  #
+  #   Pathname.new("dir/file.abc").rename_extname(".xyz") do |source, destination|
+  #     source                     # == Pathname.new("dir/file.abc")
+  #     destination                # == Pathname.new("dir/file.xyz")
+  #   end                          # == Pathname.new("dir/file.xyz")
+  #
+  #   File.exist?("dir/file.abc")  # == false
+  #   File.exist?("dir/file.xyz")  # == true
+  #
+  # @overload rename_extname(new_extname)
+  #   @param new_extname [String]
+  #   @return [Pathname]
+  #
+  # @overload rename_extname(new_extname, &block)
+  #   @param new_extname [String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def rename_extname(new_extname, &block)
     unless new_extname.start_with?(".") || new_extname.empty?
       new_extname = ".#{new_extname}"
     end
-    new_path = self.sub_ext(new_extname)
-    self.rename(new_path)
-    new_path
+    self.move_as(self.sub_ext(new_extname), &block)
   end
 
   # Writes +text+ to the file indicated by the Pathname, overwriting the

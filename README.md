@@ -50,6 +50,7 @@ The following methods are available:
   - [#make_dirname](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_dirname)
   - [#make_file](http://www.rubydoc.info/gems/pleasant_path/Pathname:make_file)
   - [#move](http://www.rubydoc.info/gems/pleasant_path/Pathname:move)
+  - [#move_as](http://www.rubydoc.info/gems/pleasant_path/Pathname:move_as)
   - [#move_into](http://www.rubydoc.info/gems/pleasant_path/Pathname:move_into)
   - [#parentname](http://www.rubydoc.info/gems/pleasant_path/Pathname:parentname)
   - [#read_lines](http://www.rubydoc.info/gems/pleasant_path/Pathname:read_lines)
