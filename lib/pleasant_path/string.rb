@@ -27,6 +27,8 @@ class String
     self.path / child
   end
 
+  # @deprecated Use {Pathname#^}.
+  #
   # Constructs a Pathname from the String, and appends +sibling+ to the
   # +dirname+ of the Pathname.
   #

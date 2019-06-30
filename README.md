@@ -62,7 +62,6 @@ The following methods are available:
   - [#write_text](http://www.rubydoc.info/gems/pleasant_path/Pathname:write_text)
 - [String](http://www.rubydoc.info/gems/pleasant_path/String)
   - [#/](http://www.rubydoc.info/gems/pleasant_path/String:%2F)
-  - [#^](http://www.rubydoc.info/gems/pleasant_path/String:%5E)
   - [#append_to_file](http://www.rubydoc.info/gems/pleasant_path/String:append_to_file)
   - [#glob](http://www.rubydoc.info/gems/pleasant_path/String:glob)
   - [#path](http://www.rubydoc.info/gems/pleasant_path/String:path)
