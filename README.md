@@ -10,10 +10,8 @@ objects.  See API listing below, or browse the [full documentation].
 ## Examples
 
 ```ruby
-# Filter lines across multiple files
-"logs/*.txt".glob.each do |log|
-  log.read_lines.grep(/^ERROR /).append_to_file("errors.txt")
-end
+# Pluck lines from a file
+"log.txt".path.read_lines.grep(/^ERROR /).append_to_file("errors.txt")
 
 # Dedup lines in a file
 "names.txt".path.edit_lines(&:uniq)
@@ -63,7 +61,6 @@ The following methods are available:
 - [String](http://www.rubydoc.info/gems/pleasant_path/String)
   - [#/](http://www.rubydoc.info/gems/pleasant_path/String:%2F)
   - [#append_to_file](http://www.rubydoc.info/gems/pleasant_path/String:append_to_file)
-  - [#glob](http://www.rubydoc.info/gems/pleasant_path/String:glob)
   - [#path](http://www.rubydoc.info/gems/pleasant_path/String:path)
   - [#to_pathname](http://www.rubydoc.info/gems/pleasant_path/String:to_pathname)
   - [#write_to_file](http://www.rubydoc.info/gems/pleasant_path/String:write_to_file)

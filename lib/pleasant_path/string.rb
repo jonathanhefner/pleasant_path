@@ -47,6 +47,8 @@ class String
     self.path ^ sibling
   end
 
+  # @deprecated Use +Pathname.glob+.
+  #
   # Returns an array of Pathnames which match the filename pattern
   # contained in the String.
   #
