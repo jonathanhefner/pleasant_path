@@ -34,6 +34,7 @@ The following methods are available:
   - [#chdir](http://www.rubydoc.info/gems/pleasant_path/Pathname:chdir)
   - [#common_path](http://www.rubydoc.info/gems/pleasant_path/Pathname:common_path)
   - [#copy](http://www.rubydoc.info/gems/pleasant_path/Pathname:copy)
+  - [#copy_as](http://www.rubydoc.info/gems/pleasant_path/Pathname:copy_as)
   - [#copy_into](http://www.rubydoc.info/gems/pleasant_path/Pathname:copy_into)
   - [#delete!](http://www.rubydoc.info/gems/pleasant_path/Pathname:delete%21)
   - [#dir?](http://www.rubydoc.info/gems/pleasant_path/Pathname:dir%3F)

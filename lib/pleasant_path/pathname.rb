@@ -643,8 +643,9 @@ class Pathname
   end
 
   # Copies the file or directory indicated by the Pathname to
-  # +destination+, creating any necessary parent directories beforehand.
-  # Returns +destination+ as a Pathname.
+  # +destination+, in the same manner as +FileUtils.cp_r+.  Creates any
+  # necessary parent directories of the destination.  Returns
+  # +destination+ as a Pathname.
   #
   # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-cp_r FileUtils.cp_r
   #
@@ -671,28 +672,160 @@ class Pathname
     destination
   end
 
+  # Copies the file or directory indicated by the Pathname to a
+  # destination, replacing any existing file or directory.
+  #
+  # If a block is given and a file or directory does exist at the
+  # destination, the block is called with the source and destination
+  # Pathnames, and the return value of the block is used as the new
+  # destination.  If the block returns the source Pathname or +nil+, the
+  # copy is aborted.
+  #
+  # Creates any necessary parent directories of the destination.
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the copy is aborted).
+  #
+  # *WARNING:* Due to system API limitations, the copy is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is copied to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
+  #
+  # @example Without a block
+  #   FileUtils.touch("file")
+  #
+  #   Pathname.new("file").copy_as("dir/file")
+  #     # == Pathname.new("dir/file")
+  #
+  #   File.exist?("file")      # == true
+  #   File.exist?("dir/file")  # == true
+  #
+  # @example Error on older source
+  #   File.write("file", "A")
+  #   sleep 1
+  #   File.write("file.new", "B")
+  #
+  #   Pathname.new("file.new").copy_as("file") do |source, destination|
+  #     if source.mtime < destination.mtime
+  #       raise "cannot replace newer file #{destination} with #{source}"
+  #     end
+  #     destination
+  #   end                    # == Pathname.new("file")
+  #
+  #   File.read("file.new")  # == "B"
+  #   File.read("file")      # == "B"
+  #
+  # @example Abort on conflict
+  #   File.write("file1", "A")
+  #   File.write("file2", "B")
+  #
+  #   Pathname.new("file1").copy_as("file2") do |source, destination|
+  #     puts "#{source} not copied to #{destination} due to conflict"
+  #     nil
+  #   end                 # == Pathname.new("file1")
+  #
+  #   File.read("file1")  # == "A"
+  #   File.read("file2")  # == "B"
+  #
+  # @example New destination on conflict
+  #   File.write("file1", "A")
+  #   File.write("file2", "B")
+  #
+  #   Pathname.new("file1").copy_as("file2") do |source, destination|
+  #     destination.available_name
+  #   end                   # == Pathname.new("file2_1")
+  #
+  #   File.read("file1")    # == "A"
+  #   File.read("file2")    # == "B"
+  #   File.read("file2_1")  # == "A"
+  #
+  # @overload copy_as(destination)
+  #   @param destination [Pathname, String]
+  #   @return [Pathname]
+  #
+  # @overload copy_as(destination, &block)
+  #   @param destination [Pathname, String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def copy_as(destination)
+    destination = destination.to_pathname
+
+    if block_given? && destination.exist? && self.exist? && !File.identical?(self, destination)
+      destination = yield self, destination
+      destination = nil if destination == self
+    end
+
+    if destination
+      destination.delete! unless File.identical?(self, destination)
+      self.copy(destination)
+    end
+
+    destination || self
+  end
+
+
   # Copies the file or directory indicated by the Pathname into
-  # +directory+, creating any necessary parent directories beforehand.
-  # Returns the resultant path as a Pathname.
+  # +directory+, replacing any existing file or directory of the same
+  # basename.
   #
-  # @example
-  #   File.exist?("path/to/file")    # == true
-  #   Dir.exist?("other")            # == false
-  #   Dir.exist?("other/dir")        # == false
-  #   File.exist?("other/dir/file")  # == false
+  # If a block is given and a file or directory does exist at the
+  # resultant destination, the block is called with the source and
+  # destination Pathnames, and the return value of the block is used as
+  # the new destination.  If the block returns the source Pathname or
+  # +nil+, the copy is aborted.
   #
-  #   Pathname.new("path/to/file").copy_into("other/dir")
-  #     # == Pathname.new("other/dir/file")
+  # Creates any necessary parent directories of the destination.
+  # Returns the destination as a Pathname (or the source Pathname in the
+  # case that the copy is aborted).
   #
-  #   File.exist?("path/to/file")    # == true
-  #   Dir.exist?("other")            # == true
-  #   Dir.exist?("other/dir")        # == true
-  #   File.exist?("other/dir/file")  # == true
+  # *WARNING:* Due to system API limitations, the copy is performed in
+  # two steps, non-atomically.  First, any file or directory existing
+  # at the destination is deleted.  Next, the source is copied to the
+  # destination.  The second step can fail independently of the first,
+  # e.g. due to insufficient disk space, leaving the file or directory
+  # previously at the destination deleted without replacement.
   #
-  # @param directory [Pathname, String]
-  # @return [Pathname]
-  def copy_into(directory)
-    self.copy(directory / self.basename)
+  # @see Pathname#copy_as
+  #
+  # @example Without a block
+  #   FileUtils.touch("file")
+  #
+  #   Pathname.new("file").copy_into("dir")
+  #     # == Pathname.new("dir/file")
+  #
+  #   File.exist?("file")      # == true
+  #   File.exist?("dir/file")  # == true
+  #
+  # @example With a block
+  #   FileUtils.mkpath("files")
+  #   FileUtils.touch("files/file1")
+  #   FileUtils.mkpath("dir/files")
+  #   FileUtils.touch("dir/files/file2")
+  #
+  #   Pathname.new("files").copy_into("dir") do |source, destination|
+  #     source                        # == Pathname.new("files")
+  #     destination                   # == Pathname.new("dir/files")
+  #   end                             # == Pathname.new("dir/files")
+  #
+  #   File.exist?("files/file1")      # == true
+  #   File.exist?("dir/files/file1")  # == true
+  #   File.exist?("dir/files/file2")  # == false
+  #
+  # @overload copy_into(directory)
+  #   @param directory [Pathname, String]
+  #   @return [Pathname]
+  #
+  # @overload copy_into(directory, &block)
+  #   @param directory [Pathname, String]
+  #   @yieldparam source [Pathname]
+  #   @yieldparam destination [Pathname]
+  #   @yieldreturn [Pathname, nil]
+  #   @return [Pathname]
+  def copy_into(directory, &block)
+    self.copy_as(directory / self.basename, &block)
   end
 
   # Alias of +Pathname#move_as+.

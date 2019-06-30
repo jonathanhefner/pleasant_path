@@ -272,13 +272,13 @@ class PathnameTest < Minitest::Test
   end
 
   def test_move_as
-    check_move_as_semantics("file_a", "dir/file_b") do |original, conflicting, block|
+    check_name_conflict_semantics("file_a", "dir/file_b") do |original, conflicting, block|
       original.move_as(conflicting, &block)
     end
   end
 
   def test_move_into
-    check_move_as_semantics("file", "dir/file") do |original, conflicting, block|
+    check_name_conflict_semantics("file", "dir/file") do |original, conflicting, block|
       original.move_into(conflicting.dirname, &block)
     end
   end
@@ -293,24 +293,26 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_copy_into
-    with_tmp_file do |source|
-      destination = source.dirname / "destination/dir" / source.basename
+  def test_copy_as
+    check_name_conflict_semantics("file_a", "dir/file_b", true) do |original, conflicting, block|
+      original.copy_as(conflicting, &block)
+    end
+  end
 
-      assert_equal destination, source.copy_into(destination.dirname)
-      assert destination.exist?
-      assert source.exist?
+  def test_copy_into
+    check_name_conflict_semantics("file", "dir/file", true) do |original, conflicting, block|
+      original.copy_into(conflicting.dirname, &block)
     end
   end
 
   def test_rename_basename
-    check_move_as_semantics("file_a", "file_b") do |original, conflicting, block|
+    check_name_conflict_semantics("file_a", "file_b") do |original, conflicting, block|
       original.rename_basename(conflicting.basename, &block)
     end
   end
 
   def test_rename_extname
-    check_move_as_semantics("file.a", "file.b") do |original, conflicting, block|
+    check_name_conflict_semantics("file.a", "file.b") do |original, conflicting, block|
       original.rename_extname(conflicting.extname, &block)
     end
   end
@@ -450,21 +452,25 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def check_move_as_semantics(original, conflicting)
+  def check_name_conflict_semantics(original, conflicting, keep_original = false)
     with_tmp_dir do |dir|
       original = dir / original
       original.dirname.mkpath
       original.write("A")
 
       # block is not called if paths are identical
-      assert_equal original, (yield original, original, proc{ raise })
+      if keep_original
+        assert_raises(ArgumentError){ yield original, original, proc{ raise } }
+      else
+        assert_equal original, (yield original, original, proc{ raise })
+      end
       assert_equal "A", original.read
 
       conflicting = dir / conflicting
 
       # block is not called if destination file does not exist
       assert_equal conflicting, (yield original, conflicting, proc{ raise })
-      refute original.exist?
+      assert_equal keep_original, original.exist?
       assert_equal "A", conflicting.read
 
       original.write("B")
@@ -488,7 +494,7 @@ class PathnameTest < Minitest::Test
 
       # block may return destination path
       assert_equal conflicting, (yield original, conflicting, ->(src, dst){ dst })
-      refute original.exist?
+      assert_equal keep_original, original.exist?
       assert_equal "B", conflicting.read
 
       original.write("C")
@@ -496,7 +502,7 @@ class PathnameTest < Minitest::Test
 
       # block may return other path
       assert_equal other, (yield original, conflicting, proc{ other })
-      refute original.exist?
+      assert_equal keep_original, original.exist?
       assert_equal "B", conflicting.read
       assert_equal "C", other.read
 
@@ -506,7 +512,7 @@ class PathnameTest < Minitest::Test
 
       # destination is deleted before move
       assert_equal conflicting, (yield original, conflicting, nil)
-      refute original.exist?
+      assert_equal keep_original, original.exist?
       assert_equal "D", conflicting.read
     end
   end
