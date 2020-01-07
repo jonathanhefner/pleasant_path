@@ -1,4 +1,4 @@
-# pleasant_path
+# pleasant_path [![Build Status](https://travis-ci.org/jonathanhefner/pleasant_path.svg?branch=master)](https://travis-ci.org/jonathanhefner/pleasant_path)
 
 A [fluent API] for pleasant file IO, written as extensions to core Ruby
 objects.  See API listing below, or browse the [full documentation].
