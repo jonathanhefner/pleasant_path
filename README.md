@@ -90,8 +90,8 @@ require "pleasant_path/json"
 require "pleasant_path/yaml"
 ```
 
-[JSON module]: https://ruby-doc.org/stdlib/libdoc/json/rdoc/JSON.html
-[YAML module]: https://ruby-doc.org/stdlib/libdoc/yaml/rdoc/YAML.html
+[JSON module]: https://docs.ruby-lang.org/en/master/JSON.html
+[YAML module]: https://docs.ruby-lang.org/en/master/YAML.html
 
 The following methods are available:
 

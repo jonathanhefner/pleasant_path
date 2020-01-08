@@ -8,7 +8,7 @@ class Object
   # Object, unmodified.
   #
   # For information about +options+ see
-  # {https://docs.ruby-lang.org/en/trunk/Psych.html#method-c-dump
+  # {https://docs.ruby-lang.org/en/master/Psych.html#method-c-dump
   # +YAML.dump+}.
   #
   # @example

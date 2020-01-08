@@ -7,9 +7,9 @@ class Pathname
   # +nil+, +true+, +false+, +Numeric+, +String+, +Array+, and +Hash+.
   #
   # For information about +options+, see
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-parse
+  # {https://docs.ruby-lang.org/en/master/JSON.html#method-i-parse
   # +JSON.parse+}.  By default, this method uses
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-load_default_options
+  # {https://docs.ruby-lang.org/en/master/JSON.html#attribute-c-load_default_options
   # +JSON.load_default_options+} plus +create_additions: false+.
   #
   # @example
@@ -29,9 +29,9 @@ class Pathname
   # consume untrusted JSON, use {Pathname#read_json} instead.
   #
   # For information about +options+, see
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-parse
+  # {https://docs.ruby-lang.org/en/master/JSON.html#method-i-parse
   # +JSON.parse+}.  By default, this method uses
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-load_default_options
+  # {https://docs.ruby-lang.org/en/master/JSON.html#attribute-c-load_default_options
   # +JSON.load_default_options+}.
   #
   # For information about serializing custom types to JSON, see the

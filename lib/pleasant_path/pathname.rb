@@ -2,9 +2,9 @@
 
 class Pathname
 
-  # {https://docs.ruby-lang.org/en/trunk/File/File/Constants.html#NULL +File::NULL+}
-  # as a Pathname.  On POSIX systems, this should be equivalent to
-  # +Pathname.new("/dev/null")+.
+  # {https://docs.ruby-lang.org/en/master/File/File/Constants.html#NULL
+  # +File::NULL+} as a Pathname.  On POSIX systems, this should be
+  # equivalent to +Pathname.new("/dev/null")+.
   NULL = Pathname.new(File::NULL)
 
   # Returns the Pathname unmodified.  Exists for parity with
@@ -146,7 +146,7 @@ class Pathname
   # the block is called with each descendent Pathname, and this method
   # returns the original Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-find Pathname#find
+  # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-find Pathname#find
   #
   # @overload find_dirs()
   #   @return [Enumerator<Pathname>]
@@ -222,7 +222,7 @@ class Pathname
   # the block is called with each descendent Pathname, and this method
   # returns the original Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-find Pathname#find
+  # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-find Pathname#find
   #
   # @overload find_files()
   #   @return [Enumerator<Pathname>]
@@ -246,7 +246,7 @@ class Pathname
   # after the block exits, this method returns the return value of the
   # block.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/Dir.html#method-c-chdir Dir.chdir
+  # @see https://docs.ruby-lang.org/en/master/Dir.html#method-c-chdir Dir.chdir
   #
   # @example
   #   FileUtils.mkdir("dir1")
@@ -282,7 +282,7 @@ class Pathname
   # Creates the directory indicated by the Pathname, including any
   # necessary parent directories.  Returns the Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-mkpath Pathname#mkpath
+  # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-mkpath Pathname#mkpath
   #
   # @example
   #   Dir.exist?("path")                # == false
@@ -351,7 +351,7 @@ class Pathname
   # time (mtime) and access time (atime) are updated.  Returns the
   # Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-touch FileUtils.touch
+  # @see https://docs.ruby-lang.org/en/master/FileUtils.html#method-c-touch FileUtils.touch
   #
   # @example
   #   Dir.exist?("path")                       # == false
@@ -454,7 +454,7 @@ class Pathname
   # necessary parent directories of the destination.  Returns
   # +destination+ as a Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-mv FileUtils.mv
+  # @see https://docs.ruby-lang.org/en/master/FileUtils.html#method-c-mv FileUtils.mv
   #
   # @example
   #   File.exist?("path/to/file")         # == true
@@ -647,7 +647,7 @@ class Pathname
   # necessary parent directories of the destination.  Returns
   # +destination+ as a Pathname.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/FileUtils.html#method-c-cp_r FileUtils.cp_r
+  # @see https://docs.ruby-lang.org/en/master/FileUtils.html#method-c-cp_r FileUtils.cp_r
   #
   # @example
   #   File.exist?("path/to/file")         # == true

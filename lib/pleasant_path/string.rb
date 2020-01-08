@@ -52,7 +52,7 @@ class String
   # Returns an array of Pathnames which match the filename pattern
   # contained in the String.
   #
-  # @see https://docs.ruby-lang.org/en/trunk/Pathname.html#method-i-glob Pathname.glob
+  # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-glob Pathname.glob
   #
   # @example
   #   "*.txt".glob  # == Pathname.glob("*.txt")

@@ -6,9 +6,9 @@ class Object
   # Object, unmodified.
   #
   # For information about +options+ see
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#method-i-generate
+  # {https://docs.ruby-lang.org/en/master/JSON.html#method-i-generate
   # +JSON.generate+}.  By default, this method uses
-  # {https://docs.ruby-lang.org/en/trunk/JSON.html#attribute-c-dump_default_options
+  # {https://docs.ruby-lang.org/en/master/JSON.html#attribute-c-dump_default_options
   # +JSON.dump_default_options+}.
   #
   # @example
