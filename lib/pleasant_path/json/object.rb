@@ -12,11 +12,11 @@ class Object
   # +JSON.dump_default_options+}.
   #
   # @example
-  #   { "key" => "value" }.write_to_json("out.json")  # == { "key" => "value" }
-  #   File.read("out.json")                           # == '{"key":"value"}'
+  #   { "key" => "value" }.write_to_json("file.json")  # == { "key" => "value" }
+  #   File.read("file.json")                           # == '{"key":"value"}'
   #
   # @param file [String, Pathname]
-  # @param options [Hash<Symbol, Object>]
+  # @param options [Hash{Symbol => Object}]
   # @return [self]
   def write_to_json(file, options = {})
     options = JSON.dump_default_options.merge(options)

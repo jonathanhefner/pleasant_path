@@ -2,7 +2,7 @@
 
 class IO
 
-  # Writes each object in +lines+ as a string plus end-of-line (EOL)
+  # Writes each object in +lines+ as a string plus +eol+ (end-of-line)
   # characters to the IO.  Returns +lines+, unmodified.
   #
   # @example
@@ -14,7 +14,7 @@ class IO
   #
   # @param lines [Enumerable<#to_s>]
   # @param eol [String]
-  # @return [Enumerable<#to_s>]
+  # @return [lines]
   def write_lines(lines, eol: $/)
     lines.each do |line|
       self.write(line)
@@ -24,11 +24,11 @@ class IO
     lines
   end
 
-  # Reads all lines from the IO, and returns them with all end-of-line
-  # (EOL) characters stripped.
+  # Reads all lines from the IO, and returns them with +eol+
+  # (end-of-line) characters stripped.
   #
   # @note Not to be confused with +IO#readlines+, which retains
-  #   end-of-line (EOL) characters.
+  #   end-of-line characters.
   #
   # @example
   #   File.read("in.txt")          # == "one\ntwo\n"

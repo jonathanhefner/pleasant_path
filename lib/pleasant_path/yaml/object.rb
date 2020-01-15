@@ -12,11 +12,11 @@ class Object
   # +YAML.dump+}.
   #
   # @example
-  #   { "key" => "value" }.write_to_yaml("out.yaml")  # == { "key" => "value" }
-  #   File.read("out.yaml")                           # == "---\nkey: value\n"
+  #   { "key" => "value" }.write_to_yaml("file.yaml")  # == { "key" => "value" }
+  #   File.read("file.yaml")                           # == "---\nkey: value\n"
   #
   # @param file [String, Pathname]
-  # @param options [Hash<Symbol, Object>]
+  # @param options [Hash{Symbol => Object}]
   # @return [self]
   def write_to_yaml(file, options = {})
     file.to_pathname.make_dirname.open("w") do |f|

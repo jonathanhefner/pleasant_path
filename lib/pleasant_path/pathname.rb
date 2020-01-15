@@ -15,7 +15,7 @@ class Pathname
     self
   end
 
-  # Joins the Pathname +dirname+ with the given +sibling+.
+  # Joins the Pathname's +dirname+ with the given +sibling+.
   #
   # The mnemonic for this operator is that the result is formed by going
   # up one directory level from the original path, then going back down
@@ -30,18 +30,17 @@ class Pathname
     self.dirname / sibling
   end
 
-  # Returns the +basename+ of the parent directory (+dirname+).
+  # Returns the +basename+ of the Pathname's +dirname+.
   #
   # @example
-  #   Pathname.new("path/to/file").parentname  # == Pathname.new("to")
+  #   Pathname.new("grand/parent/base").parentname  # == Pathname.new("parent")
   #
   # @return [Pathname]
   def parentname
     self.dirname.basename
   end
 
-  # Returns the Pathname if +exist?+ returns true, otherwise returns
-  # nil.
+  # Returns the Pathname if +exist?+ is true, otherwise returns nil.
   #
   # @example
   #   FileUtils.mkdir("dir1")
@@ -91,8 +90,8 @@ class Pathname
   # @return [Boolean]
   alias :dir_empty? :empty?
 
-  # Returns the immediate child directories of the directory indicated
-  # by the Pathname.  Returned Pathnames are prefixed by the original
+  # Returns the direct child directories of the directory indicated by
+  # the Pathname.  Returned Pathnames are prefixed by the original
   # Pathname.
   #
   # @example
@@ -142,18 +141,18 @@ class Pathname
   # directory indicated by the Pathname.  Iterated Pathnames are
   # prefixed by the original Pathname, and are in depth-first order.
   #
-  # If no block is given, this method returns an Enumerator.  Otherwise,
-  # the block is called with each descendent Pathname, and this method
-  # returns the original Pathname.
+  # If a block is given, each descendent Pathname is yielded, and this
+  # method returns the original Pathname.  Otherwise, an Enumerator is
+  # returned.
   #
   # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-find Pathname#find
   #
-  # @overload find_dirs()
-  #   @return [Enumerator<Pathname>]
-  #
   # @overload find_dirs(&block)
   #   @yieldparam descendent [Pathname]
-  #   @return [Pathname]
+  #   @return [self]
+  #
+  # @overload find_dirs()
+  #   @return [Enumerator<Pathname>]
   def find_dirs
     return to_enum(__method__) unless block_given?
 
@@ -168,7 +167,7 @@ class Pathname
     self
   end
 
-  # Returns the immediate child files of the directory indicated by the
+  # Returns the direct child files of the directory indicated by the
   # Pathname.  Returned Pathnames are prefixed by the original Pathname.
   #
   # @example
@@ -218,18 +217,18 @@ class Pathname
   # indicated by the Pathname.  Iterated Pathnames are prefixed by the
   # original Pathname, and are in depth-first order.
   #
-  # If no block is given, this method returns an Enumerator.  Otherwise,
-  # the block is called with each descendent Pathname, and this method
-  # returns the original Pathname.
+  # If a block is given, each descendent Pathname is yielded, and this
+  # method returns the original Pathname.  Otherwise, an Enumerator is
+  # returned.
   #
   # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-find Pathname#find
   #
-  # @overload find_files()
-  #   @return [Enumerator<Pathname>]
-  #
   # @overload find_files(&block)
   #   @yieldparam descendent [Pathname]
-  #   @return [Pathname]
+  #   @return [self]
+  #
+  # @overload find_files()
+  #   @return [Enumerator<Pathname>]
   def find_files
     return to_enum(__method__) unless block_given?
 
@@ -243,8 +242,8 @@ class Pathname
   # Changes the current working directory to the Pathname.  If no block
   # is given, this method returns the Pathname.  Otherwise, the block is
   # called with the Pathname, the original working directory is restored
-  # after the block exits, this method returns the return value of the
-  # block.
+  # after the block exits, and this method returns the return value of
+  # the block.
   #
   # @see https://docs.ruby-lang.org/en/master/Dir.html#method-c-chdir Dir.chdir
   #
@@ -259,12 +258,12 @@ class Pathname
   #   Pathname.pwd                                      # == Pathname.new("dir1")
   #
   # @overload chdir()
-  #   @return [Pathname]
+  #   @return [self]
   #
   # @overload chdir(&block)
   #   @yieldparam working_dir [Pathname]
-  #   @yieldreturn [Object] retval
-  #   @return [retval]
+  #   @yieldreturn [Object]
+  #   @return [Object]
   #
   # @raise [SystemCallError]
   #   if the Pathname does not point to an existing directory
@@ -301,8 +300,8 @@ class Pathname
     self
   end
 
-  # Creates the directory indicated by the Pathname +dirname+, including
-  # any necessary parent directories.  Returns the Pathname.
+  # Creates the directory indicated by the Pathname's +dirname+,
+  # including any necessary parent directories.  Returns the Pathname.
   #
   # @example
   #   Dir.exist?("path")                         # == false
@@ -336,9 +335,10 @@ class Pathname
   #   Dir.exist?("path/to")                   # == true
   #   File.exist?("path/to/file")             # == true
   #
-  # @return [Pathname]
+  # @return [self]
   # @raise [SystemCallError]
-  #   if the Pathname points to an existent directory
+  #   if the Pathname points to an existing directory, or if any element
+  #   of the +dirname+ points to an existing file (non-directory)
   def make_file
     self.make_dirname.open("a"){}
     self
@@ -479,13 +479,13 @@ class Pathname
     destination
   end
 
-  # Moves the file or directory indicated by the Pathname to a
-  # destination, replacing any existing file or directory.
+  # Moves the file or directory indicated by the Pathname to
+  # +destination+, replacing any existing file or directory.
   #
   # If a block is given and a file or directory does exist at the
   # destination, the block is called with the source and destination
   # Pathnames, and the return value of the block is used as the new
-  # destination.  If the block returns the source Pathname or +nil+, the
+  # destination.  If the block returns the source Pathname or nil, the
   # move is aborted.
   #
   # Creates any necessary parent directories of the destination.
@@ -589,7 +589,7 @@ class Pathname
   # resultant destination, the block is called with the source and
   # destination Pathnames, and the return value of the block is used as
   # the new destination.  If the block returns the source Pathname or
-  # +nil+, the move is aborted.
+  # nil, the move is aborted.
   #
   # Creates any necessary parent directories of the destination.
   # Returns the destination as a Pathname (or the source Pathname in the
@@ -672,13 +672,13 @@ class Pathname
     destination
   end
 
-  # Copies the file or directory indicated by the Pathname to a
-  # destination, replacing any existing file or directory.
+  # Copies the file or directory indicated by the Pathname to
+  # +destination+, replacing any existing file or directory.
   #
   # If a block is given and a file or directory does exist at the
   # destination, the block is called with the source and destination
   # Pathnames, and the return value of the block is used as the new
-  # destination.  If the block returns the source Pathname or +nil+, the
+  # destination.  If the block returns the source Pathname or nil, the
   # copy is aborted.
   #
   # Creates any necessary parent directories of the destination.
@@ -775,7 +775,7 @@ class Pathname
   # resultant destination, the block is called with the source and
   # destination Pathnames, and the return value of the block is used as
   # the new destination.  If the block returns the source Pathname or
-  # +nil+, the copy is aborted.
+  # nil, the copy is aborted.
   #
   # Creates any necessary parent directories of the destination.
   # Returns the destination as a Pathname (or the source Pathname in the
@@ -841,7 +841,7 @@ class Pathname
   # resultant destination, the block is called with the source and
   # destination Pathnames, and the return value of the block is used as
   # the new destination.  If the block returns the source Pathname or
-  # +nil+, the rename is aborted.
+  # nil, the rename is aborted.
   #
   # Returns the destination as a Pathname (or the source Pathname in the
   # case that the rename is aborted).
@@ -900,7 +900,7 @@ class Pathname
   # resultant destination, the block is called with the source and
   # destination Pathnames, and the return value of the block is used as
   # the new destination.  If the block returns the source Pathname or
-  # +nil+, the rename is aborted.
+  # nil, the rename is aborted.
   #
   # Returns the destination as a Pathname (or the source Pathname in the
   # case that the rename is aborted).
@@ -1016,7 +1016,7 @@ class Pathname
     self
   end
 
-  # Writes each object in +lines+ as a string plus end-of-line (EOL)
+  # Writes each object in +lines+ as a string plus +eol+ (end-of-line)
   # characters to the file indicated by the Pathname, overwriting the
   # file if it exists.  Creates the file if it does not exist, including
   # any necessary parent directories.  Returns the Pathname.
@@ -1037,7 +1037,7 @@ class Pathname
     self
   end
 
-  # Appends each object in +lines+ as a string plus end-of-line (EOL)
+  # Appends each object in +lines+ as a string plus +eol+ (end-of-line)
   # characters to the file indicated by the Pathname.  Creates the file
   # if it does not exist, including any necessary parent directories.
   # Returns the Pathname.
@@ -1064,12 +1064,12 @@ class Pathname
   alias :read_text :read
 
   # Reads all lines from the file indicated by the Pathname, and returns
-  # them with all end-of-line (EOL) characters stripped.
+  # them with +eol+ (end-of-line) characters stripped.
   #
   # @see IO#read_lines
   #
   # @note Not to be confused with +Pathname#readlines+, which retains
-  #   end-of-line (EOL) characters.
+  #   end-of-line characters.
   #
   # @example
   #   File.read("path/to/file")                # == "one\ntwo\n"
@@ -1082,10 +1082,10 @@ class Pathname
     self.open("r"){|f| f.read_lines(eol: eol) }
   end
 
-  # Reads the entire contents of the file indicated by the Pathname as a
-  # string, and yields that string to the given block for editing.
-  # Writes the return value of the block back to the file, overwriting
-  # previous contents.  Returns the return value of the block.
+  # Reads the file indicated by the Pathname, and yields the entire
+  # contents as a String to the given block for editing.  Writes the
+  # return value of the block back to the file, overwriting previous
+  # contents.  Returns the return value of the block.
   #
   # @see File.edit_text
   #
@@ -1108,11 +1108,11 @@ class Pathname
     File.edit_text(self, &block)
   end
 
-  # Reads the entire contents of the file indicated by the Pathname as
-  # an array of lines, and yields that array to the given block for
-  # editing.  Writes the return value of the block back to the file,
-  # overwriting previous contents.  End-of-line (EOL) characters are
-  # stripped when reading, and appended after each line when writing.
+  # Reads the file indicated by the Pathname, and yields the entire
+  # contents as an Array of lines to the given block for editing.
+  # Writes the return value of the block back to the file, overwriting
+  # previous contents.  +eol+ (end-of-line) characters are stripped from
+  # each line when reading, and appended to each line when writing.
   # Returns the return value of the block.
   #
   # @see File.edit_lines

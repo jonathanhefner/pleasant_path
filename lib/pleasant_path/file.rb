@@ -2,7 +2,7 @@
 
 class File
 
-  # Returns the longest path that all of +paths+ have in common.
+  # Returns the longest path that all given +paths+ have in common.
   #
   # @example
   #   File.common_path(["a/b/x", "a/b/y", "a/b/z"])  # == "a/b/"
@@ -23,10 +23,10 @@ class File
     short[0, i == short.length ? i : (last + 1)]
   end
 
-  # Reads the entire contents of the file indicated by +filename+ as a
-  # string, and yields that string to the given block for editing.
-  # Writes the return value of the block back to the file, overwriting
-  # previous contents.  Returns the return value of the block.
+  # Reads the file indicated by +filename+, and yields the entire
+  # contents as a String to the given block for editing.  Writes the
+  # return value of the block back to the file, overwriting previous
+  # contents.  Returns the return value of the block.
   #
   # @example Update JSON data file
   #   File.read("data.json")  # == '{"nested":{"key":"value"}}'
@@ -54,11 +54,11 @@ class File
     end
   end
 
-  # Reads the entire contents of the file indicated by +filename+ as an
-  # array of lines, and yields that array to the given block for
-  # editing.  Writes the return value of the block back to the file,
-  # overwriting previous contents.  End-of-line (EOL) characters are
-  # stripped when reading, and appended after each line when writing.
+  # Reads the file indicated by +filename+, and yields the entire
+  # contents as an Array of lines to the given block for editing.
+  # Writes the return value of the block back to the file, overwriting
+  # previous contents.  +eol+ (end-of-line) characters are stripped from
+  # each line when reading, and appended to each line when writing.
   # Returns the return value of the block.
   #
   # @example Dedup lines of file

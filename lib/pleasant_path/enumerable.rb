@@ -1,9 +1,9 @@
 module Enumerable
 
-  # Writes each object in the Enumerable as a string plus end-of-line
-  # (EOL) characters to the specified +file+, overwriting the file if it
-  # exists.  Creates the file if it does not exist, including any
-  # necessary parent directories.  Returns the Enumerable.
+  # Writes each object in the Enumerable as a string plus +eol+
+  # (end-of-line) characters to the specified +file+, overwriting the
+  # file if it exists.  Creates the file if it does not exist, including
+  # any necessary parent directories.  Returns the Enumerable.
   #
   # @see Pathname#write_lines
   #
@@ -19,10 +19,10 @@ module Enumerable
     self
   end
 
-  # Appends each object in the Enumerable as a string plus end-of-line
-  # (EOL) characters to the specified +file+.  Creates the file if it
-  # does not exist, including any necessary parent directories.  Returns
-  # the Enumerable.
+  # Appends each object in the Enumerable as a string plus +eol+
+  # (end-of-line) characters to the specified +file+.  Creates the file
+  # if it does not exist, including any necessary parent directories.
+  # Returns the Enumerable.
   #
   # @see Pathname#append_lines
   #
