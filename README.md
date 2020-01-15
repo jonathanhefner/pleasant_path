@@ -107,13 +107,13 @@ The following methods are available:
 
 ## Installation
 
-Install from [Ruby Gems](https://rubygems.org/gems/pleasant_path):
+Install the [gem](https://rubygems.org/gems/pleasant_path):
 
 ```bash
 $ gem install pleasant_path
 ```
 
-Then require in your Ruby script:
+Then require in your Ruby code:
 
 ```ruby
 require "pleasant_path"
