@@ -27,21 +27,6 @@ class String
     self.path / child
   end
 
-  # @deprecated Use +Pathname.glob+.
-  #
-  # Returns an array of Pathnames which match the filename pattern
-  # contained in the String.
-  #
-  # @see https://docs.ruby-lang.org/en/master/Pathname.html#method-i-glob Pathname.glob
-  #
-  # @example
-  #   "*.txt".glob  # == Pathname.glob("*.txt")
-  #
-  # @return [Array<Pathname>]
-  def glob
-    Pathname.glob(self)
-  end
-
   # Writes the String to the specified +file+, overwriting the file if
   # it exists.  Creates the file if it does not exist, including
   # any necessary parent directories.  Returns the String.

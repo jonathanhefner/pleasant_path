@@ -19,14 +19,6 @@ class StringTest < Minitest::Test
     assert_equal (Pathname.new(str1) / str2), (str1 / str2)
   end
 
-  def test_glob
-    pattern = "#{__dir__}/../*.gemspec"
-    expected = Pathname.glob(pattern)
-
-    refute_empty expected # sanity check
-    assert_equal expected, pattern.glob
-  end
-
   def test_write_to_file
     str = "the string to write"
 
