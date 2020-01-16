@@ -27,26 +27,6 @@ class String
     self.path / child
   end
 
-  # @deprecated Use {Pathname#^}.
-  #
-  # Constructs a Pathname from the String, and appends +sibling+ to the
-  # +dirname+ of the Pathname.
-  #
-  # The mnemonic for this operator is that the result is formed by going
-  # up one directory level from the original path, then going back down
-  # to +sibling+.
-  #
-  # @see Pathname#^
-  #
-  # @example
-  #   "path/to/file1" ^ "file2"  # == Pathname.new("path/to/file2")
-  #
-  # @param sibling [Pathname, String]
-  # @return [Pathname]
-  def ^(sibling)
-    self.path ^ sibling
-  end
-
   # @deprecated Use +Pathname.glob+.
   #
   # Returns an array of Pathnames which match the filename pattern

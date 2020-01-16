@@ -19,13 +19,6 @@ class StringTest < Minitest::Test
     assert_equal (Pathname.new(str1) / str2), (str1 / str2)
   end
 
-  def test_op_caret
-    str1 = "path/to/file1"
-    str2 = "file2"
-
-    assert_equal (Pathname.new(str1) ^ str2), (str1 ^ str2)
-  end
-
   def test_glob
     pattern = "#{__dir__}/../*.gemspec"
     expected = Pathname.glob(pattern)
