@@ -199,13 +199,6 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_touch_file
-    with_tmp_file(false) do |file|
-      assert_equal file, file.touch_file
-      assert file.file?
-    end
-  end
-
   def test_delete_bang
     with_tmp_file do |file|
       dir = file.dirname

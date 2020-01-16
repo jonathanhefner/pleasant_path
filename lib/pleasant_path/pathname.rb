@@ -337,32 +337,6 @@ class Pathname
     self
   end
 
-  # @deprecated Use {Pathname#make_file}.
-  #
-  # Creates the file indicated by the Pathname, including any necessary
-  # parent directories.  If the file already exists, its modification
-  # time (mtime) and access time (atime) are updated.  Returns the
-  # Pathname.
-  #
-  # @see https://docs.ruby-lang.org/en/master/FileUtils.html#method-c-touch FileUtils.touch
-  #
-  # @example
-  #   Dir.exist?("path")                       # == false
-  #   Dir.exist?("path/to")                    # == false
-  #
-  #   Pathname.new("path/to/file").touch_file  # == Pathname.new("path/to/file")
-  #
-  #   Dir.exist?("path")                       # == true
-  #   Dir.exist?("path/to")                    # == true
-  #   File.exist?("path/to/file")              # == true
-  #
-  # @return [self]
-  def touch_file
-    self.make_dirname
-    FileUtils.touch(self)
-    self
-  end
-
   # Recursively deletes the directory or file indicated by the Pathname.
   # Similar to +Pathname#rmtree+, but does not raise an exception if the
   # file does not exist.  Returns the Pathname.
