@@ -604,33 +604,27 @@ class Pathname
   end
 
   # Copies the file or directory indicated by the Pathname to
-  # +destination+, in the same manner as +FileUtils.cp_r+.  Creates any
-  # necessary parent directories of the destination.  Returns
+  # +destination+, in the same manner as +FileUtils.cp_r+.  Returns
   # +destination+ as a Pathname.
   #
   # @see https://docs.ruby-lang.org/en/master/FileUtils.html#method-c-cp_r FileUtils.cp_r
   #
   # @example
-  #   File.exist?("path/to/file")         # == true
-  #   Dir.exist?("other")                 # == false
-  #   Dir.exist?("other/dir")             # == false
-  #   File.exist?("other/dir/same_file")  # == false
+  #   FileUtils.mkpath("dir/files")
+  #   FileUtils.touch("dir/files/file1")
+  #   FileUtils.mkpath("other_dir")
   #
-  #   Pathname.new("path/to/file").copy("other/dir/same_file")
-  #     # == Pathname.new("other/dir/same_file")
+  #   Pathname.new("dir/files").copy("other_dir/same_files")
+  #     # == Pathname.new("other_dir/same_files")
   #
-  #   File.exist?("path/to/file")         # == true
-  #   Dir.exist?("other")                 # == true
-  #   Dir.exist?("other/dir")             # == true
-  #   File.exist?("other/dir/same_file")  # == true
+  #   File.exist?("dir/files/file1")             # == true
+  #   File.exist?("other_dir/same_files/file1")  # == true
   #
   # @param destination [Pathname, String]
   # @return [Pathname]
   def copy(destination)
-    destination = destination.to_pathname
-    destination.make_dirname
     FileUtils.cp_r(self, destination)
-    destination
+    destination.to_pathname
   end
 
   # Copies the file or directory indicated by the Pathname to
@@ -721,7 +715,7 @@ class Pathname
 
     if destination
       destination.delete! unless File.identical?(self, destination)
-      self.copy(destination)
+      self.copy(destination.make_dirname)
     end
 
     destination || self

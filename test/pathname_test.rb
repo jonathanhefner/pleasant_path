@@ -274,7 +274,7 @@ class PathnameTest < Minitest::Test
 
   def test_copy
     with_tmp_file do |source|
-      destination = source.dirname / "destination/dir/file"
+      destination = source.dirname / "destination"
 
       assert_equal destination, source.copy(destination)
       assert destination.exist?
