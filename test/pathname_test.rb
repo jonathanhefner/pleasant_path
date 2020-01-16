@@ -386,7 +386,7 @@ class PathnameTest < Minitest::Test
     with_tmp_file do |file|
       file.write(text)
 
-      assert_equal text.strip, file.edit_text(&:strip)
+      assert_equal file, file.edit_text(&:strip)
       assert_equal text.strip, file.read
     end
   end

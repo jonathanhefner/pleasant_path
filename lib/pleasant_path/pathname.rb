@@ -1037,7 +1037,7 @@ class Pathname
   # Reads the file indicated by the Pathname, and yields the entire
   # contents as a String to the given block for editing.  Writes the
   # return value of the block back to the file, overwriting previous
-  # contents.  Returns the return value of the block.
+  # contents.  Returns the Pathname.
   #
   # @see File.edit_text
   #
@@ -1055,9 +1055,10 @@ class Pathname
   # @yield [text]
   # @yieldparam text [String]
   # @yieldreturn [String]
-  # @return [String]
+  # @return [self]
   def edit_text(&block)
     File.edit_text(self, &block)
+    self
   end
 
   # Reads the file indicated by the Pathname, and yields the entire
