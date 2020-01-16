@@ -1066,7 +1066,7 @@ class Pathname
   # Writes the return value of the block back to the file, overwriting
   # previous contents.  +eol+ (end-of-line) characters are stripped from
   # each line when reading, and appended to each line when writing.
-  # Returns the return value of the block.
+  # Returns the Pathname.
   #
   # @see File.edit_lines
   #
@@ -1082,9 +1082,10 @@ class Pathname
   # @yield [lines]
   # @yieldparam lines [Array<String>]
   # @yieldreturn [Array<String>]
-  # @return [Array<String>]
+  # @return [self]
   def edit_lines(eol: $/, &block)
     File.edit_lines(self, eol: eol, &block)
+    self
   end
 
   # Appends the contents of file indicated by +source+ to the file

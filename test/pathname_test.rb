@@ -398,7 +398,7 @@ class PathnameTest < Minitest::Test
       with_various_eol(lines) do |text, options|
         file.write(text)
 
-        assert_equal lines.uniq, file.edit_lines(**options, &:uniq)
+        assert_equal file, file.edit_lines(**options, &:uniq)
         assert_equal lines.uniq, file.read.split(options[:eol] || $/)
       end
     end
