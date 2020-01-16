@@ -319,14 +319,6 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  def test_rename_extname_without_dot
-    with_tmp_file do |file|
-      expected = file.sub_ext(".a")
-      assert_equal expected, file.rename_extname("a")
-      assert expected.file?
-    end
-  end
-
   def test_write_text
     text = "line 1\nline 2\n"
 

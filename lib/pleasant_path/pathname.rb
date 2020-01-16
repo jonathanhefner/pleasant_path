@@ -923,9 +923,6 @@ class Pathname
   #   @yieldreturn [Pathname, nil]
   #   @return [Pathname]
   def rename_extname(new_extname, &block)
-    unless new_extname.start_with?(".") || new_extname.empty?
-      new_extname = ".#{new_extname}"
-    end
     self.move_as(self.sub_ext(new_extname), &block)
   end
 
