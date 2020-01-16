@@ -14,14 +14,7 @@ class Pathname
   #
   # @return [nil, true, false, Numeric, String, Array, Hash]
   def read_yaml
-    self.open("r") do |f|
-      # HACK fix Ruby 2.6 warning, but still support Ruby < 2.6
-      if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0.pre1")
-        YAML.safe_load(f, filename: self)
-      else
-        YAML.safe_load(f, [], [], false, self)
-      end
-    end
+    self.open("r"){|f| YAML.safe_load(f, filename: self) }
   end
 
   # Reads the file indicated by the Pathname, and parses the contents as
