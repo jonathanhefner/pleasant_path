@@ -83,13 +83,6 @@ class Pathname
   # @return [Boolean]
   alias :dir? :directory?
 
-  # @deprecated Use +Pathname#empty?+.
-  #
-  # Alias of +Pathname#empty?+.
-  #
-  # @return [Boolean]
-  alias :dir_empty? :empty?
-
   # Returns the direct child directories of the directory indicated by
   # the Pathname.  Returned Pathnames are prefixed by the original
   # Pathname.

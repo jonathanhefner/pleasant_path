@@ -55,10 +55,6 @@ class PathnameTest < Minitest::Test
     assert_equal :directory?, Pathname.new("/").method(:dir?).original_name
   end
 
-  def test_dir_empty_predicate_aliases_empty_predicate
-    assert_equal :empty?, Pathname.new("/").method(:dir_empty?).original_name
-  end
-
   def test_dirs
     with_tmp_tree do |base, dirs, files|
       child_dirs = dirs.select{|dir| dir.dirname == base }
