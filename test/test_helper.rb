@@ -1,4 +1,3 @@
-$/ = "\n"
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "pleasant_path"
 
@@ -50,12 +49,13 @@ class Minitest::Test
 
     yield lines.map{|line| line + original_eol }.join, {}
 
-    $/ = alternative_eol
+    $VERBOSE, $/, $VERBOSE = [nil, alternative_eol, $VERBOSE]
+
     yield lines.map{|line| line + alternative_eol }.join, {}
 
     yield lines.map{|line| line + original_eol }.join, { eol: original_eol }
   ensure
-    $/ = original_eol
+    $VERBOSE, $/, $VERBOSE = [nil, original_eol, $VERBOSE]
   end
 
 end
