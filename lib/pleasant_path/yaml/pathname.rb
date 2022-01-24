@@ -31,7 +31,7 @@ class Pathname
   #
   # @return [Object]
   def load_yaml
-    YAML.load_file(self)
+    YAML.respond_to?(:unsafe_load_file) ? YAML.unsafe_load_file(self) : YAML.load_file(self)
   end
 
 end
