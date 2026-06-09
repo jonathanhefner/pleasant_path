@@ -14,7 +14,7 @@ class Pathname
   #
   # @return [nil, true, false, Numeric, String, Array, Hash]
   def read_yaml
-    self.open("r"){|f| YAML.safe_load(f, filename: self) }
+    YAML.safe_load_file(self)
   end
 
   # Reads the file indicated by the Pathname, and parses the contents as
@@ -31,7 +31,7 @@ class Pathname
   #
   # @return [Object]
   def load_yaml
-    YAML.respond_to?(:unsafe_load_file) ? YAML.unsafe_load_file(self) : YAML.load_file(self)
+    YAML.unsafe_load_file(self)
   end
 
 end
