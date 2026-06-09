@@ -1,6 +1,7 @@
 require "test_helper"
 require "pleasant_path/json"
 require "json/add/core"
+require "ostruct"
 
 class PathnameJsonTest < Minitest::Test
 

@@ -50,7 +50,7 @@ class Pathname
   # @param options [Hash{Symbol => Object}]
   # @return [Object]
   def load_json(options = {})
-    JSON.load(self, nil, options)
+    JSON.load(self, nil, { create_additions: true, **options })
   end
 
 end

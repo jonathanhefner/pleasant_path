@@ -8,7 +8,7 @@ class ObjectJsonTest < Minitest::Test
     SERIALIZABLE_DATA.each do |data|
       with_tmp_file(false) do |file|
         assert_equal data, data.write_to_json(file)
-        assert_equal data, JSON.load(file)
+        assert_equal data, JSON.load(file, nil, { create_additions: true })
       end
     end
   end
