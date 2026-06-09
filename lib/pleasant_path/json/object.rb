@@ -7,9 +7,9 @@ class Object
   #
   # For information about +options+ see
   # {https://docs.ruby-lang.org/en/master/JSON.html#method-i-generate
-  # +JSON.generate+}.  By default, this method uses
-  # {https://docs.ruby-lang.org/en/master/JSON.html#attribute-c-dump_default_options
-  # +JSON.dump_default_options+}.
+  # +JSON.generate+}.  By default, this method uses the default options
+  # for {https://docs.ruby-lang.org/en/master/JSON.html#method-i-dump
+  # +JSON.dump+}.
   #
   # @example
   #   { "key" => "value" }.write_to_json("file.json")  # == { "key" => "value" }
@@ -19,8 +19,7 @@ class Object
   # @param options [Hash{Symbol => Object}]
   # @return [self]
   def write_to_json(file, options = {})
-    options = JSON.dump_default_options.merge(options)
-    file.to_pathname.write_text(self.to_json(options))
+    file.to_pathname.write_text(JSON.dump(self, nil, nil, options))
     self
   end
 
