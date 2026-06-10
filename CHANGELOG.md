@@ -1,3 +1,9 @@
+## 3.0.0
+
+* [BREAKING] Drop support for Ruby < 3.4
+* [BREAKING] Require `json` >= 2.11
+
+
 ## 2.0.0
 
 * [BREAKING] Drop support for Ruby < 2.6
