@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jonathan Hefner"]
   spec.email         = ["jonathan@hefner.pro"]
 
-  spec.summary       = %q{A fluent API for pleasant file IO.}
+  spec.summary       = %q{Fluent API for pleasant file IO}
   spec.homepage      = "https://github.com/jonathanhefner/pleasant_path"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.4"
